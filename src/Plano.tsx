@@ -87,11 +87,15 @@ export function Plano({
   const SW = TW / N
   const total = janela.fim.getTime() - janela.inicio.getTime()
   const x = (d: Date) => ((d.getTime() - janela.inicio.getTime()) / total) * TW
-  const meioDia = (d: Date) => x(d) + SW / 14
   const dentro = (d: Date | null) => !!d && d >= janela.inicio && d < janela.fim
 
   const idxSemana = (d: Date | null) => (d ? janela.semanas.findIndex((s) => d >= s.ini && d < addDias(s.ini, 7)) : -1)
+  // Tudo alinhado à grade de semanas: marco no centro da coluna; barras de coluna a coluna.
+  const centro = (d: Date) => idxSemana(d) * SW + SW / 2
+  const colIni = (d: Date) => (d < janela.inicio ? 0 : d >= janela.fim ? TW : idxSemana(d) * SW)
+  const colFim = (d: Date) => (d < janela.inicio ? 0 : d >= janela.fim ? TW : (idxSemana(d) + 1) * SW)
   const semAtual = idxSemana(hoje)
+  const xHoje = semAtual >= 0 ? (semAtual + 1) * SW : -1 // linha "Hoje" no fim da coluna da semana atual
   const semPrazo = idxSemana(prog.painel.prazo)
 
   const rel = foco ? conectadas(prog, foco) : null
@@ -120,9 +124,9 @@ export function Plano({
         const pre = iniPorId.get(pid)
         const fa = frenteDaIni.get(pid)
         if (!pre || !fa || fa === fb || !dentro(pre.fim)) continue
-        const x1 = meioDia(pre.fim!)
+        const x1 = centro(pre.fim!)
         const y1 = linhaDe.get(fa)! * ROW + ROW / 2
-        const x2 = meioDia(suc.fim!)
+        const x2 = centro(suc.fim!)
         const y2 = linhaDe.get(fb)! * ROW + ROW / 2
         const dx = Math.max(30, Math.abs(x2 - x1) / 2)
         const vermelha = marcoSt(pre) === "atr" || !!(pre.fim && suc.ini && pre.fim >= suc.ini)
@@ -225,11 +229,17 @@ export function Plano({
 
           {frentes.map((f, k) => {
             const apagada = rel && !rel.has(f.id)
-            const x1 = f.ini ? Math.max(0, x(f.ini)) : 0
-            const x2 = f.fim ? Math.min(TW, x(addDias(f.fim, 1))) : 0
+            const x1 = f.ini ? colIni(f.ini) + 3 : 0
+            const x2 = f.fim ? colFim(f.fim) - 3 : 0
             const camIdx = camadas.indexOf(f.camada)
-            const scIni = Math.max(0, x(hoje < janela.inicio ? janela.inicio : hoje))
-            const scFim = f.alvo && f.alvo > hoje ? Math.min(TW, x(addDias(f.alvo, 1))) : Math.min(TW, scIni + 260)
+            const scIni = xHoje >= 0 ? xHoje : hoje < janela.inicio ? 0 : TW
+            const scFim = f.alvo && f.alvo > hoje ? colFim(f.alvo) : Math.min(TW, scIni + 260)
+            // marcos agrupados por semana: um losango por semana, com todas as macroatividades no detalhe
+            const porSemana = new Map<number, Iniciativa[]>()
+            f.iniciativas.filter((i) => dentro(i.fim)).forEach((i) => {
+              const k = idxSemana(i.fim)
+              porSemana.set(k, [...(porSemana.get(k) ?? []), i])
+            })
             return (
               <div
                 key={f.id}
@@ -293,37 +303,57 @@ export function Plano({
                   )}
                   {f.alvo && dentro(f.alvo) && (
                     <Tooltip asChild side="top" showArrow={false} content={`Data-alvo: ${fmt(f.alvo)}`}>
-                      <span className="absolute cursor-default text-[11px] leading-none text-gray-800" style={{ left: meioDia(f.alvo) - 5, top: 3 }}>
+                      <span className="absolute cursor-default text-[11px] leading-none text-gray-800" style={{ left: centro(f.alvo) - 5, top: 3 }}>
                         ▼
                       </span>
                     </Tooltip>
                   )}
-                  {f.iniciativas
-                    .filter((i) => dentro(i.fim))
-                    .map((i) => {
-                      const st = marcoSt(i)
-                      return (
-                        <Tooltip
-                          key={i.id}
-                          asChild
-                          side="top"
-                          showArrow={false}
-                          content={
-                            <div className="space-y-0.5">
-                              <p className="font-semibold">{i.macro}</p>
-                              <p>
-                                {fmt(i.ini)} a {fmt(i.fim)} · {MARCO_NOME[st]}
-                              </p>
-                              {i.preds.length > 0 && <p>Predecessoras: {i.preds.map((p) => iniPorId.get(p)?.macro ?? p).join(", ")}</p>}
-                            </div>
-                          }
-                        >
-                          <span className="absolute cursor-default" style={{ left: meioDia(i.fim!) - 9, top: ROW / 2 - 9 }}>
-                            <Diamante st={st} />
-                          </span>
-                        </Tooltip>
-                      )
-                    })}
+                  {[...porSemana.entries()].map(([k, lista]) => {
+                    const ordem = { atr: 0, andamento: 1, nao: 2, conc: 3 } as const
+                    const sts = lista.map((i) => marcoSt(i))
+                    const st = sts.reduce((a, b) => (ordem[b] < ordem[a] ? b : a))
+                    const s0 = janela.semanas[k]
+                    const nomeIni = (id: string) => {
+                      const o = iniPorId.get(id)
+                      const fr = frenteDaIni.get(id)
+                      return `${o?.macro ?? id}${fr && fr !== f.id ? ` (frente ${fr})` : ""}`
+                    }
+                    return (
+                      <Tooltip
+                        key={k}
+                        asChild
+                        side="top"
+                        showArrow={false}
+                        className="max-w-96"
+                        content={
+                          <div className="space-y-2">
+                            <p className="text-xs opacity-80">
+                              S{s0.num} · semana de {fmt(s0.ini)} · {lista.length} macroatividade{lista.length > 1 ? "s" : ""}
+                            </p>
+                            {lista.map((i) => (
+                              <div key={i.id} className="space-y-0.5">
+                                <p className="font-semibold">
+                                  {i.macro} <span className="font-normal opacity-80">· {MARCO_NOME[marcoSt(i)]}</span>
+                                </p>
+                                <p className="opacity-90">
+                                  {fmt(i.ini)} a {fmt(i.fim)}
+                                </p>
+                                {i.preds.length > 0 && <p className="opacity-90">Depende de: {i.preds.map(nomeIni).join(", ")}</p>}
+                                {i.sucs.length > 0 && <p className="opacity-90">Libera: {i.sucs.map(nomeIni).join(", ")}</p>}
+                              </div>
+                            ))}
+                          </div>
+                        }
+                      >
+                        <span className="absolute cursor-default" style={{ left: k * SW + SW / 2 - 9, top: ROW / 2 - 9 }}>
+                          <Diamante st={st} />
+                          {lista.length > 1 && (
+                            <span className="absolute -right-2 -top-2 flex size-3.5 items-center justify-center rounded-full bg-gray-800 text-[9px] font-bold text-white">{lista.length}</span>
+                          )}
+                        </span>
+                      </Tooltip>
+                    )
+                  })}
                 </div>
 
                 {/* prontidão */}
@@ -405,9 +435,9 @@ export function Plano({
           </svg>
 
           {/* hoje */}
-          {dentro(hoje) && (
-            <div className={cx("pointer-events-none absolute top-0", T.hojeLine)} style={{ left: LEFT + x(hoje), height: H + H_RODAPE }}>
-              <span className="absolute left-1 whitespace-nowrap rounded bg-red-500 px-1 text-[10px] font-semibold leading-4 text-white" style={{ top: H + 4 }}>
+          {xHoje >= 0 && (
+            <div className={cx("pointer-events-none absolute top-0", T.hojeLine)} style={{ left: LEFT + xHoje, height: H + H_RODAPE }}>
+              <span className="absolute right-1 whitespace-nowrap rounded bg-red-500 px-1 text-[10px] font-semibold leading-4 text-white" style={{ top: H + 3 }}>
                 Hoje
               </span>
             </div>

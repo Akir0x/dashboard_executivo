@@ -1,5 +1,5 @@
 import React from "react"
-import { RiCloseLine } from "@remixicon/react"
+import { RiAlarmWarningFill, RiCloseLine } from "@remixicon/react"
 import { cx } from "./utils/cx"
 import { addDias, fmt, hoje, Iniciativa } from "./data"
 import { conectadas, Dependencia, Frente, marcoSt, MARCO_NOME, ordenarCamadas, Programa, segunda } from "./exec"
@@ -11,6 +11,7 @@ import { corCamada, T } from "./tema"
 const LEFT = 230
 const H_MES = 22
 const LINHA = 30
+const BARRA = 22
 const PADV = 8
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
 
@@ -25,7 +26,6 @@ function useLargura(ref: React.RefObject<HTMLDivElement>) {
   return w
 }
 
-const curto = (s: string, n = 26) => (s.length > n ? s.slice(0, n - 1) + "…" : s)
 const chave = (d: Pick<Dependencia, "de" | "para">) => d.de + ">" + d.para
 
 export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) => void }) {
@@ -58,14 +58,15 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
   const raias: { f: Frente; top: number; h: number; itens: Item[]; hipoteses: Dependencia[] }[] = []
   let y = H_MES + 18
   for (const f of prog.frentes) {
-    const minhas = f.iniciativas.filter((i) => envolvidas.has(i.id) && i.fim).sort((a, b) => a.fim!.getTime() - b.fim!.getTime())
+    const minhas = f.iniciativas.filter((i) => envolvidas.has(i.id) && i.fim).sort((a, b) => (a.ini ?? a.fim!).getTime() - (b.ini ?? b.fim!).getTime())
     const ocupado: number[] = []
     const itens: Item[] = minhas.map((i) => {
-      const xf = x(i.fim!)
-      const xi = i.ini ? x(i.ini) : xf
-      const rot = curto(i.macro)
-      const fimEtiqueta = xf + 12 + rot.length * 6.2
-      let l = ocupado.findIndex((e) => e + 10 <= Math.min(xi, xf - 8))
+      // retângulo do período (início ao fim), com o nome dentro; linhas novas quando há sobreposição
+      const xi = i.ini ? x(i.ini) : x(i.fim!)
+      const xf = Math.max(x(addDias(i.fim!, 1)), xi + 28)
+      const rot = i.macro
+      const fimEtiqueta = xf
+      let l = ocupado.findIndex((e) => e + 6 <= xi)
       if (l < 0) {
         l = ocupado.length
         ocupado.push(0)
@@ -79,8 +80,8 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
     y += h
   }
   const H = y + 6
-  const pos = new Map<string, { x: number; y: number }>()
-  raias.forEach((r) => r.itens.forEach((it) => pos.set(it.i.id, { x: it.xf, y: r.top + PADV + it.linha * LINHA + LINHA / 2 })))
+  const pos = new Map<string, { xi: number; xf: number; y: number }>()
+  raias.forEach((r) => r.itens.forEach((it) => pos.set(it.i.id, { xi: it.xi, xf: it.xf, y: r.top + PADV + it.linha * LINHA + LINHA / 2 })))
 
   const meses: { x: number; nome: string }[] = []
   for (let m = new Date(ini.getFullYear(), ini.getMonth() + 1, 1); m < fim; m = new Date(m.getFullYear(), m.getMonth() + 1, 1))
@@ -214,8 +215,11 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
                 if (!a || !b) return null
                 const vermelha = l.atrasada || l.conflito
                 const ativa = ativaPar(l.d)
-                const dx = Math.max(40, Math.abs(b.x - a.x) / 2)
-                const d = `M${a.x + 8},${a.y} C${a.x + dx},${a.y} ${b.x - dx},${b.y} ${b.x - 9},${b.y}`
+                // do fim da predecessora ao início da sucessora
+                const x1 = a.xf
+                const x2 = b.xi
+                const dx = Math.max(30, Math.abs(x2 - x1) / 2)
+                const d = `M${x1},${a.y} C${x1 + dx},${a.y} ${x2 - dx},${b.y} ${x2 - 2},${b.y}`
                 return (
                   <g key={l.pre.id + l.suc.id} className="cursor-pointer" onClick={() => setSel({ tipo: "par", k: chave(l.d) })}>
                     <path d={d} fill="none" stroke="transparent" strokeWidth={12} />
@@ -238,21 +242,33 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
               })}
             </svg>
 
-            {/* macroatividades: barra fina do período + losango no fim + nome */}
+            {/* macroatividades: retângulo do período com o nome dentro (cor da camada da frente) */}
             {raias.map((r) =>
               r.itens.map((it) => {
                 const p = pos.get(it.i.id)!
                 const st = marcoSt(it.i)
                 const apagada = rel && !rel.has(r.f.id)
+                const largura = it.xf - it.xi
                 return (
-                  <div key={it.i.id} className={cx("pointer-events-none absolute transition-opacity", apagada ? "opacity-30" : "")} style={{ left: LEFT, top: p.y - 9, width: TW }}>
-                    <div className="absolute h-1 rounded-full bg-gray-300" style={{ left: it.xi, width: Math.max(0, it.xf - it.xi), top: 7 }} />
-                    <span className="absolute" style={{ left: it.xf - 9, top: 0 }} title={`${it.i.macro} · ${fmt(it.i.ini)} a ${fmt(it.i.fim)} · ${MARCO_NOME[st]}`}>
-                      <Diamante st={st} />
-                    </span>
-                    <span className="absolute whitespace-nowrap text-xs font-medium text-gray-800" style={{ left: it.xf + 12, top: 1 }}>
-                      {it.rot}
-                    </span>
+                  <div
+                    key={it.i.id}
+                    className={cx(
+                      "absolute flex items-center gap-1 overflow-hidden rounded-md px-1.5 text-xs font-medium text-white shadow-xs transition-opacity",
+                      corCamada(camadas.indexOf(r.f.camada)),
+                      st === "atr" && "ring-2 ring-red-500 ring-offset-1",
+                      apagada ? "opacity-25" : st === "conc" ? "opacity-60" : "",
+                    )}
+                    style={{ left: LEFT + it.xi, top: p.y - BARRA / 2, width: largura, height: BARRA }}
+                    onMouseEnter={() => setFoco(r.f.id)}
+                    onMouseLeave={() => setFoco(null)}
+                    title={`${it.i.macro} · ${fmt(it.i.ini)} a ${fmt(it.i.fim)} · ${MARCO_NOME[st]}`}
+                  >
+                    {st === "atr" && (
+                      <span className="flex size-4 shrink-0 items-center justify-center rounded bg-red-500">
+                        <RiAlarmWarningFill className="size-3" aria-label="atrasada" />
+                      </span>
+                    )}
+                    <span className="truncate">{it.rot}</span>
                   </div>
                 )
               }),
