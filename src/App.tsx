@@ -181,6 +181,7 @@ export default function App() {
   const forum = T.eyebrow.includes("Barlow")
 
   const dm = (d: Date) => `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`
+  const pequeno = "rounded px-1.5 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-900/5 hover:text-gray-800 disabled:opacity-40 disabled:hover:bg-transparent"
   const vNome = VEREDITOS.find((v) => v.k === painel.veredito)?.nome ?? "Sem veredito"
 
   return (
@@ -237,24 +238,26 @@ export default function App() {
             <section className={cx("mt-3 overflow-hidden", T.card)}>
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 px-4 py-2 print:hidden">
                 <h2 className={T.painelTitulo}>Plano integrado · cronograma e prontidão por frente</h2>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <button type="button" className={T.btn} onClick={() => setDesloc(desloc - 1)} aria-label="Semana anterior">
-                    <RiArrowLeftSLine className="size-4" />
+                {/* controles discretos: não competem com o conteúdo */}
+                <div className="flex flex-wrap items-center gap-1 text-xs text-gray-500">
+                  <button type="button" className={pequeno} onClick={() => setDesloc(desloc - 1)} aria-label="Semana anterior">
+                    <RiArrowLeftSLine className="size-3.5" />
                   </button>
-                  <button type="button" className={T.btn} onClick={() => setDesloc(0)} disabled={desloc === 0}>
+                  <button type="button" className={pequeno} onClick={() => setDesloc(0)} disabled={desloc === 0}>
                     Hoje
                   </button>
-                  <button type="button" className={T.btn} onClick={() => setDesloc(desloc + 1)} aria-label="Próxima semana">
-                    <RiArrowRightSLine className="size-4" />
+                  <button type="button" className={pequeno} onClick={() => setDesloc(desloc + 1)} aria-label="Próxima semana">
+                    <RiArrowRightSLine className="size-3.5" />
                   </button>
-                  <span className="px-1 text-xs text-gray-500">
+                  <span className="px-1 tabular-nums">
                     S{janela.semanas[0].num}–S{janela.semanas[janela.semanas.length - 1].num}
                   </span>
-                  <button type="button" className={verDeps ? T.btnOn : T.btn} onClick={() => setVerDeps(!verDeps)} aria-pressed={verDeps}>
+                  <span className="mx-1 h-3.5 w-px bg-black/15" />
+                  <button type="button" className={cx(pequeno, verDeps && "bg-gray-900/5 text-gray-900")} onClick={() => setVerDeps(!verDeps)} aria-pressed={verDeps}>
                     Ver dependências
                   </button>
-                  <button type="button" className={cx("flex items-center gap-1", T.btnPrimary)} onClick={() => setAba("mapa")}>
-                    Mapa de interdependências <RiArrowRightSLine className="size-4" />
+                  <button type="button" className={cx(pequeno, "flex items-center gap-0.5")} onClick={() => setAba("mapa")}>
+                    Mapa de interdependências <RiArrowRightSLine className="size-3.5" />
                   </button>
                 </div>
               </div>
