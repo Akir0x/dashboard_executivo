@@ -94,7 +94,17 @@ window.DADOS_FLUXO = /*DADOS*/[];      // tbIniciativas, mesmo marcador do outro
 window.GERADO_EM = "/*GERADO_EM*/";
 ```
 
-Igual ao fluxo do dashboard de iniciativas, com três "Listar linhas presentes em uma tabela" (tbPainel, tbFrentes, tbIniciativas) e um Redigir com `replace` aninhado:
+Guardar duas cópias do HTML no SharePoint: o **modelo** (o HTML compilado, intocado, com os marcadores) e o **publicado** (gerado pelo fluxo). O fluxo sempre lê o modelo. Escolha um dos dois visuais como modelo (`roadmap_executivo_tremor.html` ou `roadmap_executivo_forum.html`).
+
+1. **Gatilho:** *SharePoint → Quando um arquivo é criado ou modificado (somente propriedades)* apontando para a pasta do Excel (atualiza ao salvar a planilha), ou *Recorrência* (ex.: a cada hora).
+2. **Excel Online (Business) → Listar linhas presentes em uma tabela**, três vezes, no mesmo arquivo. Renomeie as ações para bater com a expressão do passo 4:
+   - `Listar_tbPainel` → tabela `tbPainel`
+   - `Listar_tbFrentes` → tabela `tbFrentes`
+   - `Listar_tbIniciativas` → tabela `tbIniciativas`
+
+   Em *Configurações* de cada uma, ative a paginação (limite 5000). Opcional: *Formato DateTime = ISO 8601*. O painel também entende datas como número serial.
+3. **SharePoint → Obter conteúdo do arquivo usando o caminho:** o modelo (ex.: `/Dashboard/modelo/roadmap_executivo_tremor.html`).
+4. **Redigir**, renomeada para `Montar_HTML`, com o `replace` aninhado:
 
 ```
 replace(replace(replace(replace(
@@ -104,6 +114,14 @@ replace(replace(replace(replace(
   '/*DADOS*/[]',   string(body('Listar_tbIniciativas')?['value'])),
   '/*GERADO_EM*/', formatDateTime(convertFromUtc(utcNow(), 'E. South America Standard Time'), 'dd/MM/yyyy HH:mm'))
 ```
+
+   Se o conteúdo vier como texto puro (sem `$content`), use `body('Obter_conteúdo_do_arquivo_usando_o_caminho')` direto, sem `base64ToString`.
+5. **SharePoint → Criar arquivo:** pasta de publicação, nome `roadmap_executivo.html`, conteúdo `outputs('Montar_HTML')`. Se acusar arquivo existente, use *Atualizar arquivo* com o identificador do arquivo publicado.
+6. Opcional: postar no Teams ou enviar e-mail com o link do arquivo publicado.
+
+O `GERADO_EM` vira o "Atualizado em…" e a "Leitura para dd/mm" do topo. Conectores usados são **padrão** (Excel Online e SharePoint), sem premium.
+
+**Limitações:** o SharePoint Online baixa arquivos `.html` em vez de abri-los, então cada pessoa abre a cópia baixada no navegador. Alguns antivírus ou políticas podem alertar sobre `.html` baixado; teste com um colega antes de divulgar.
 
 Se a `tbFrentes` vier vazia, o painel mostra os dados de exemplo (sem selo indicando isso). Testado com a saída simulada do conector (datas como número serial, IDs sem zero à esquerda, chaves `@odata.etag`).
 
