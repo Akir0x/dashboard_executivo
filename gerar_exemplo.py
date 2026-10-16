@@ -80,6 +80,18 @@ INICIATIVAS = [
     ("M22", "Treinamento da rede", "Experiência do atendente", D(2026, 12, 14), D(2026, 12, 23), "M21; M06; M17", "", "Não"),
 ]
 
+
+# IDs são só números. Uma macroatividade pode reunir várias atividades: a célula de ID aceita
+# vários números separados por ";" (ex.: "120; 121; 122"). Predecessoras/Sucessoras citam
+# qualquer um desses números.
+_IDS = {f"M{n:02d}": str(n * 10) for n in range(1, 23)}
+_IDS.update({"M05": "50; 51", "M12": "120; 121; 122", "M19": "190; 191", "M09": "90; 91"})
+_REF = {k: v.split("; ")[-1] for k, v in _IDS.items()}  # referência usa um dos números da macroatividade
+INICIATIVAS = [
+    (_IDS[i], m, f, a, b, "; ".join(_REF[x.strip()] for x in pr.split(";") if x.strip()), su, c)
+    for (i, m, f, a, b, pr, su, c) in INICIATIVAS
+]
+
 fonte = Font(name="Arial", size=10)
 negrito = Font(name="Arial", size=10, bold=True, color="FFFFFF")
 
@@ -130,7 +142,10 @@ sn = DataValidation(type="list", formula1='"Sim,Não"', allow_blank=True)
 sn.add("E2:E200")
 ws.add_data_validation(sn)
 
-ws = aba(wb, "Iniciativas", "tbIniciativas", INI_CAB, INICIATIVAS, [8, 34, 32, 12, 12, 16, 14, 11], datas="DE")
+ws = aba(wb, "Iniciativas", "tbIniciativas", INI_CAB, INICIATIVAS, [16, 34, 32, 12, 12, 16, 14, 11], datas="DE")
+for r in range(2, ws.max_row + 1):
+    for col in "AFG":
+        ws[f"{col}{r}"].number_format = "@"  # texto: preserva "01; 50; 90"
 sn2 = DataValidation(type="list", formula1='"Sim,Não"', allow_blank=True)
 sn2.add("H2:H1000")
 ws.add_data_validation(sn2)
@@ -154,6 +169,7 @@ textos = [
     ("A dependência declarada é comprovada quando alguma macroatividade de uma frente é predecessora de uma macroatividade da outra (tbIniciativas). Sem essa ligação, ela aparece como hipótese a validar.", False),
     ("", False),
     ("tbIniciativas (aba Iniciativas) — mesma tabela do dashboard de iniciativas", True),
+    ("ID: um ou mais números separados por ponto e vírgula (ex.: 01; 50; 90) — uma macroatividade pode reunir várias atividades. Predecessoras/Sucessoras citam esses números.", False),
     ("Cada linha vira um losango na raia da frente, na DataFim. O retângulo da frente vai da menor DataInicio à maior DataFim.", False),
     ("Frente sem nenhuma iniciativa aparece como 'Sem cronograma · data-alvo'.", False),
     ("", False),

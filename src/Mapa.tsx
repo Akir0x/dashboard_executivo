@@ -35,17 +35,27 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
   const [sel, setSel] = React.useState<{ tipo: "frente" | "par"; k: string } | null>(null)
   const camadas = ordenarCamadas(prog.frentes)
 
-  // macroatividades envolvidas em dependência entre frentes
+  // Todas as macroatividades entram no mapa. Setas: entre frentes (destaque) e dentro da mesma frente (discretas).
   const ligacoes = prog.deps.flatMap((d) => d.macros.map((m) => ({ ...m, d })))
-  const envolvidas = new Map<string, Iniciativa>()
-  ligacoes.forEach((l) => {
-    envolvidas.set(l.pre.id, l.pre)
-    envolvidas.set(l.suc.id, l.suc)
-  })
   const frenteDaIni = new Map<string, string>()
   prog.frentes.forEach((f) => f.iniciativas.forEach((i) => frenteDaIni.set(i.id, f.id)))
+  const envolvidas = new Map<string, Iniciativa>()
+  prog.frentes.forEach((f) => f.iniciativas.forEach((i) => i.fim && envolvidas.set(i.id, i)))
+  const iniPorIdMapa = new Map(prog.iniciativas.map((i) => [i.id, i]))
+  const internas = prog.iniciativas.flatMap((suc) =>
+    suc.preds
+      .map((p) => iniPorIdMapa.get(p))
+      .filter((pre): pre is Iniciativa => !!pre && !!frenteDaIni.get(pre.id) && frenteDaIni.get(pre.id) === frenteDaIni.get(suc.id))
+      .map((pre) => ({
+        pre,
+        suc,
+        f: frenteDaIni.get(suc.id)!,
+        atrasada: marcoSt(pre) === "atr",
+        conflito: !!(pre.fim && suc.ini && pre.fim >= suc.ini && !pre.concl),
+      })),
+  )
 
-  // período: das macroatividades envolvidas (com folga) ou, sem nenhuma, das próximas 12 semanas
+  // período: de todas as macroatividades (com folga) ou, sem nenhuma, das próximas 12 semanas
   const datas = [...envolvidas.values()].flatMap((i) => [i.ini, i.fim]).filter(Boolean) as Date[]
   const ini = segunda(addDias(datas.length ? new Date(Math.min(...datas.map((d) => d.getTime()))) : hoje, -7))
   const fimBase = datas.length ? new Date(Math.max(...datas.map((d) => d.getTime()))) : addDias(hoje, 84)
@@ -123,7 +133,15 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
         <span className="text-red-600">
           <b className="tabular-nums">{resumo.risco}</b> em risco
         </span>
-        <span className={cx("ml-auto", T.rodape)}>Clique numa frente ou numa seta para filtrar a lista abaixo</span>
+        <span className={cx("ml-auto flex items-center gap-3", T.rodape)}>
+          <span className="flex items-center gap-1">
+            <svg width="20" height="6" aria-hidden="true"><path d="M0,3 H20" stroke="#6b7280" strokeWidth="1.5" /></svg>entre frentes
+          </span>
+          <span className="flex items-center gap-1">
+            <svg width="20" height="6" aria-hidden="true"><path d="M0,3 H20" stroke="#c4c8ce" strokeWidth="1" /></svg>mesma frente
+          </span>
+          <span>· clique numa frente ou seta para filtrar a lista</span>
+        </span>
       </div>
 
       <div className={cx("overflow-hidden", T.card)}>
@@ -176,7 +194,7 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
                     <span className="absolute flex items-center gap-1.5 text-xs text-gray-500" style={{ left: LEFT + 12, top: r.h / 2 - 9 }}>
                       {r.hipoteses.length ? (
                         <>
-                          Sem macroatividade ligada a outra frente · hipóteses:
+                          Sem cronograma · hipóteses:
                           {r.hipoteses.map((d) => (
                             <span key={chave(d)} className={estiloChip(d)}>
                               {d.de}→{d.para}
@@ -184,7 +202,7 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
                           ))}
                         </>
                       ) : (
-                        "Sem dependências com outras frentes"
+                        "Sem cronograma"
                       )}
                     </span>
                   )}
@@ -205,10 +223,41 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
                 <marker id="rd-seta" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
                   <path d="M0,0 L8,4 L0,8 z" fill="#6b7280" />
                 </marker>
+                <marker id="rd-seta-i" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 z" fill="#c4c8ce" />
+                </marker>
                 <marker id="rd-seta-r" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
                   <path d="M0,0 L8,4 L0,8 z" fill="#dc2626" />
                 </marker>
               </defs>
+              {internas.map((l) => {
+                const a = pos.get(l.pre.id)
+                const b = pos.get(l.suc.id)
+                if (!a || !b) return null
+                const vermelha = l.atrasada || l.conflito
+                const ativa = sel ? sel.tipo === "frente" && sel.k === l.f : foco ? foco === l.f : true
+                const x1 = a.xf
+                const x2 = b.xi
+                const dx = Math.max(20, Math.abs(x2 - x1) / 2)
+                const d = `M${x1},${a.y} C${x1 + dx},${a.y} ${x2 - dx},${b.y} ${x2 - 2},${b.y}`
+                return (
+                  <path
+                    key={"i" + l.pre.id + l.suc.id}
+                    d={d}
+                    fill="none"
+                    stroke={vermelha ? "#f87171" : "#c4c8ce"}
+                    strokeWidth={1}
+                    strokeDasharray={vermelha ? "4 3" : undefined}
+                    markerEnd={`url(#${vermelha ? "rd-seta-r" : "rd-seta-i"})`}
+                    opacity={ativa ? 0.9 : 0.08}
+                  >
+                    <title>
+                      {l.pre.macro} → {l.suc.macro} (mesma frente)
+                      {l.atrasada ? " · predecessora atrasada" : l.conflito ? " · sucessora começa antes do fim da predecessora" : ""}
+                    </title>
+                  </path>
+                )
+              })}
               {ligacoes.map((l) => {
                 const a = pos.get(l.pre.id)
                 const b = pos.get(l.suc.id)
@@ -261,7 +310,7 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
                     style={{ left: LEFT + it.xi, top: p.y - BARRA / 2, width: largura, height: BARRA }}
                     onMouseEnter={() => setFoco(r.f.id)}
                     onMouseLeave={() => setFoco(null)}
-                    title={`${it.i.macro} · ${fmt(it.i.ini)} a ${fmt(it.i.fim)} · ${MARCO_NOME[st]}`}
+                    title={`${it.i.macro}${it.i.ids.length ? ` · ID ${it.i.ids.join('; ')}` : ''} · ${fmt(it.i.ini)} a ${fmt(it.i.fim)} · ${MARCO_NOME[st]}`}
                   >
                     {st === "atr" && (
                       <span className="flex size-4 shrink-0 items-center justify-center rounded bg-red-500">

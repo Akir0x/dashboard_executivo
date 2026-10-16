@@ -336,6 +336,7 @@ export function Plano({
                                   {i.macro} <span className="font-normal opacity-80">· {MARCO_NOME[marcoSt(i)]}</span>
                                 </p>
                                 <p className="opacity-90">
+                                  {i.ids.length > 0 && `ID ${i.ids.join("; ")} · `}
                                   {fmt(i.ini)} a {fmt(i.fim)}
                                 </p>
                                 {i.preds.length > 0 && <p className="opacity-90">Depende de: {i.preds.map(nomeIni).join(", ")}</p>}

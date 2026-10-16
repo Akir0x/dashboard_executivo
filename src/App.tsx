@@ -139,7 +139,8 @@ function Detalhe({ f, onFechar, prog }: { f: Frente; onFechar: () => void; prog:
                     <span className="block truncate font-medium text-gray-900">{i.macro}</span>
                     <span className="text-xs text-gray-500">
                       {fmt(i.ini)} a {fmt(i.fim)}
-                      {i.preds.length > 0 && ` · depende de ${i.preds.join(", ")}`}
+                      {i.ids.length > 0 && ` · ID ${i.ids.join("; ")}`}
+                      {i.preds.length > 0 && ` · depende de ${i.preds.map((p) => prog.iniciativas.find((x) => x.id === p)?.macro ?? p).join(", ")}`}
                     </span>
                   </span>
                   <span className={cx("shrink-0 text-xs font-medium", st === "atr" ? "text-red-600" : "text-gray-500")}>{MARCO_NOME[st]}</span>

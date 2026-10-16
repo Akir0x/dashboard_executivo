@@ -3,7 +3,8 @@
 export type StatusKey = "atr" | "prox" | "ok" | "conc"
 
 export interface Iniciativa {
-  id: string
+  id: string // chave interna da linha (os IDs da célula juntos)
+  ids: string[] // IDs das atividades que formam a macroatividade (ex.: 01; 50; 90)
   macro: string
   frente: string
   ini: Date | null
@@ -89,13 +90,19 @@ function campo(row: Record<string, unknown>, nome: string): unknown {
 
 export function normalizar(linhas: Record<string, unknown>[]): Iniciativa[] {
   const base: (Iniciativa & { predRaw: string[]; sucRaw: string[] })[] = []
+  const usados = new Set<string>()
   for (const r of linhas || []) {
-    const id = String(campo(r, "id") ?? "").trim()
+    // A célula de ID pode ter vários números: "01; 50; 90" (uma macroatividade com várias atividades).
+    const ids = listaIds(campo(r, "id"))
     const macro = String(campo(r, "macro") ?? "").trim()
-    if (!id && !macro) continue
+    if (!ids.length && !macro) continue
+    let id = ids.join("; ") || macro
+    for (let n = 2; usados.has(id); n++) id = `${ids.join("; ") || macro} #${n}`
+    usados.add(id)
     base.push({
-      id: id || macro,
-      macro: macro || id,
+      id,
+      ids,
+      macro: macro || ids.join("; "),
       frente: String(campo(r, "frente") ?? "").trim() || "Sem frente",
       ini: parseData(campo(r, "ini")),
       fim: parseData(campo(r, "fim")),
@@ -112,6 +119,11 @@ export function normalizar(linhas: Record<string, unknown>[]): Iniciativa[] {
     })
   }
   const porId = new Map(base.map((i) => [i.id, i]))
+  // Cada ID de atividade aponta para a linha (macroatividade) que o contém. "01" e "1" são o mesmo ID.
+  const chaveId = (v: string) => (/^\d+$/.test(v) ? String(Number(v)) : v.toLowerCase())
+  const dono = new Map<string, string>()
+  for (const i of base) for (const x of i.ids) if (!dono.has(chaveId(x))) dono.set(chaveId(x), i.id)
+  const linhaDe = (ref: string) => dono.get(chaveId(ref)) ?? (porId.has(ref) ? ref : undefined)
   const P = new Map(base.map((i) => [i.id, new Set<string>()]))
   const S = new Map(base.map((i) => [i.id, new Set<string>()]))
   const ligar = (p: string, s: string) => {
@@ -121,8 +133,16 @@ export function normalizar(linhas: Record<string, unknown>[]): Iniciativa[] {
     }
   }
   for (const i of base) {
-    for (const p of i.predRaw) porId.has(p) ? ligar(p, i.id) : i.faltando.push(p)
-    for (const s of i.sucRaw) porId.has(s) ? ligar(i.id, s) : i.faltando.push(s)
+    for (const ref of i.predRaw) {
+      const p = linhaDe(ref)
+      if (p) ligar(p, i.id)
+      else i.faltando.push(ref)
+    }
+    for (const ref of i.sucRaw) {
+      const x = linhaDe(ref)
+      if (x) ligar(i.id, x)
+      else i.faltando.push(ref)
+    }
   }
   for (const i of base) {
     i.preds = [...P.get(i.id)!]

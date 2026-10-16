@@ -182,7 +182,7 @@
  ],
  "iniciativas": [
   {
-   "ID": "M01",
+   "ID": "10",
    "Macroatividade": "Mapeamento das fontes",
    "Frente": "Base de dados de clientes",
    "DataInicio": "2026-09-28",
@@ -192,57 +192,57 @@
    "Concluida": "Sim"
   },
   {
-   "ID": "M02",
+   "ID": "20",
    "Macroatividade": "Carga inicial",
    "Frente": "Base de dados de clientes",
    "DataInicio": "2026-10-05",
    "DataFim": "2026-10-09",
-   "Predecessoras": "M01",
+   "Predecessoras": "10",
    "Sucessoras": "",
    "Concluida": "Sim"
   },
   {
-   "ID": "M03",
+   "ID": "30",
    "Macroatividade": "Validação da base",
    "Frente": "Base de dados de clientes",
    "DataInicio": "2026-10-12",
    "DataFim": "2026-10-23",
-   "Predecessoras": "M02",
+   "Predecessoras": "20",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M04",
+   "ID": "40",
    "Macroatividade": "Regras de cálculo",
    "Frente": "Motor de regras",
    "DataInicio": "2026-10-13",
    "DataFim": "2026-10-30",
-   "Predecessoras": "M03",
+   "Predecessoras": "30",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M05",
+   "ID": "50; 51",
    "Macroatividade": "Parametrização",
    "Frente": "Motor de regras",
    "DataInicio": "2026-11-02",
    "DataFim": "2026-11-27",
-   "Predecessoras": "M04",
+   "Predecessoras": "40",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M06",
+   "ID": "60",
    "Macroatividade": "Homologação do motor",
    "Frente": "Motor de regras",
    "DataInicio": "2026-11-30",
    "DataFim": "2026-12-04",
-   "Predecessoras": "M05",
+   "Predecessoras": "51",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M07",
+   "ID": "70",
    "Macroatividade": "Desenho do portfólio",
    "Frente": "Novo portfólio de serviços",
    "DataInicio": "2026-09-28",
@@ -252,27 +252,27 @@
    "Concluida": "Não"
   },
   {
-   "ID": "M08",
+   "ID": "80",
    "Macroatividade": "Aprovação comercial",
    "Frente": "Novo portfólio de serviços",
    "DataInicio": "2026-11-02",
    "DataFim": "2026-12-04",
-   "Predecessoras": "M07",
+   "Predecessoras": "70",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M09",
+   "ID": "90; 91",
    "Macroatividade": "Carga do portfólio",
    "Frente": "Novo portfólio de serviços",
    "DataInicio": "2026-12-07",
    "DataFim": "2027-01-08",
-   "Predecessoras": "M08",
+   "Predecessoras": "80",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M10",
+   "ID": "100",
    "Macroatividade": "Especificação",
    "Frente": "Adaptação do sistema de cobrança",
    "DataInicio": "2026-10-13",
@@ -282,47 +282,47 @@
    "Concluida": "Não"
   },
   {
-   "ID": "M11",
+   "ID": "110",
    "Macroatividade": "Desenvolvimento",
    "Frente": "Adaptação do sistema de cobrança",
    "DataInicio": "2026-11-02",
    "DataFim": "2026-11-13",
-   "Predecessoras": "M10; M04",
+   "Predecessoras": "100; 40",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M12",
+   "ID": "120; 121; 122",
    "Macroatividade": "Testes integrados",
    "Frente": "Adaptação do sistema de cobrança",
    "DataInicio": "2026-11-30",
    "DataFim": "2026-12-11",
-   "Predecessoras": "M11; M05",
+   "Predecessoras": "110; 51",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M13",
+   "ID": "130",
    "Macroatividade": "Piloto",
    "Frente": "Adaptação do sistema de cobrança",
    "DataInicio": "2026-12-14",
    "DataFim": "2026-12-31",
-   "Predecessoras": "M12",
+   "Predecessoras": "122",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M14",
+   "ID": "140",
    "Macroatividade": "Implantação",
    "Frente": "Adaptação do sistema de cobrança",
    "DataInicio": "2027-01-11",
    "DataFim": "2027-01-29",
-   "Predecessoras": "M13; M09",
+   "Predecessoras": "130; 91",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M15",
+   "ID": "150",
    "Macroatividade": "Pesquisa com clientes",
    "Frente": "Experiência do cliente",
    "DataInicio": "2026-09-28",
@@ -332,47 +332,47 @@
    "Concluida": "Sim"
   },
   {
-   "ID": "M16",
+   "ID": "160",
    "Macroatividade": "Protótipo navegável",
    "Frente": "Experiência do cliente",
    "DataInicio": "2026-10-05",
    "DataFim": "2026-10-09",
-   "Predecessoras": "M15",
+   "Predecessoras": "150",
    "Sucessoras": "",
    "Concluida": "Sim"
   },
   {
-   "ID": "M17",
+   "ID": "170",
    "Macroatividade": "Jornada validada",
    "Frente": "Experiência do cliente",
    "DataInicio": "2026-10-05",
    "DataFim": "2026-10-14",
-   "Predecessoras": "M16",
+   "Predecessoras": "160",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M18",
+   "ID": "180",
    "Macroatividade": "Telas finais",
    "Frente": "Experiência do cliente",
    "DataInicio": "2026-10-19",
    "DataFim": "2026-10-23",
-   "Predecessoras": "M17",
+   "Predecessoras": "170",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M19",
+   "ID": "190; 191",
    "Macroatividade": "Lançamento para clientes",
    "Frente": "Experiência do cliente",
    "DataInicio": "2026-12-07",
    "DataFim": "2026-12-23",
-   "Predecessoras": "M18; M06",
+   "Predecessoras": "180; 60",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M20",
+   "ID": "200",
    "Macroatividade": "Mapeamento do atendimento",
    "Frente": "Experiência do atendente",
    "DataInicio": "2026-10-05",
@@ -382,22 +382,22 @@
    "Concluida": "Sim"
   },
   {
-   "ID": "M21",
+   "ID": "210",
    "Macroatividade": "Roteiro de atendimento",
    "Frente": "Experiência do atendente",
    "DataInicio": "2026-10-12",
    "DataFim": "2026-10-23",
-   "Predecessoras": "M20; M02",
+   "Predecessoras": "200; 20",
    "Sucessoras": "",
    "Concluida": "Não"
   },
   {
-   "ID": "M22",
+   "ID": "220",
    "Macroatividade": "Treinamento da rede",
    "Frente": "Experiência do atendente",
    "DataInicio": "2026-12-14",
    "DataFim": "2026-12-23",
-   "Predecessoras": "M21; M06; M17",
+   "Predecessoras": "210; 60; 170",
    "Sucessoras": "",
    "Concluida": "Não"
   }

@@ -41,6 +41,9 @@ Painel executivo em **um único arquivo HTML**, irmão do dashboard de acompanha
 
 **`tbIniciativas`** (aba Iniciativas): a mesma do dashboard de iniciativas (`ID`, `Macroatividade`, `Frente`, `DataInicio`, `DataFim`, `Predecessoras`, `Sucessoras`, `Concluida`).
 
+- **IDs são só números** (sem prefixo). Uma macroatividade pode reunir várias atividades, então a célula de `ID` aceita **vários números separados por `;`** (ex.: `01; 50; 90`). `Predecessoras`/`Sucessoras` citam qualquer um desses números, e a ligação vai para a linha que o contém. "01" e "1" são o mesmo ID. Colunas ID, Predecessoras e Sucessoras ficam em formato Texto na planilha.
+- A ligação com a frente é pelo **nome** (coluna `Frente` igual à da `tbFrentes`; acento e maiúscula não importam) ou pelo número da frente.
+
 ## Regras calculadas (`src/exec.ts`)
 
 - **Status do marco:** Concluído (Concluida = Sim) · Atrasado (DataFim < hoje) · Em andamento (DataInicio ≤ hoje) · Não iniciado.
@@ -62,7 +65,7 @@ Painel executivo em **um único arquivo HTML**, irmão do dashboard de acompanha
 3. **Plano integrado** (visão executiva). Os controles ficam na barra do próprio bloco, **pequenos e discretos** (texto cinza, sem borda, para não competir com o conteúdo): ‹ Hoje › (semana a semana), intervalo S#–S#, "Ver dependências" e "Mapa de interdependências ›". Grade: frente (nº colorido pela camada, ✓ reporte, nome, líder, CP) · semanas agrupadas por mês (semana atual e semana do prazo destacadas, linha tracejada "Hoje") · Prontidão (Escopo, Prazo, Entregáveis, Recursos com + para expandir as áreas) · Risco (barras + ⚠ se sem cronograma) · Interdependências (← recebe de, → entrega para). Rodapé: carga de marcos por semana e totais OK/n. Passar o mouse numa frente apaga as não conectadas; clicar abre o painel de detalhe (prontidão, áreas, risco, interdependências, marcos).
 4. **Mapa de interdependências** (tela separada, sem a faixa de veredito e indicadores; botão "‹ Voltar à visão executiva"), em formato de **rede no tempo**:
    - faixa-resumo: total de dependências, comprovadas, hipóteses, não declaradas, em risco;
-   - raias = frentes; só aparecem as macroatividades ligadas a outra frente, como **retângulos do período com o nome dentro** (cor da camada da frente; corta com "…" se não couber; atrasada com contorno vermelho e ícone de alarme; concluída mais clara). A raia **cresce em linhas** conforme a quantidade de macroatividades, sem sobrepor (como no primeiro roadmap). Setas do fim da predecessora ao início da sucessora (vermelha tracejada se atrasada ou em conflito); raia sem macroatividade ligada mostra as hipóteses dela;
+   - raias = frentes; aparecem **todas as macroatividades** (decisão: o mapa mostra o todo), como **retângulos do período com o nome dentro** (cor da camada da frente; corta com "…" se não couber; atrasada com contorno vermelho e ícone de alarme; concluída mais clara). A raia **cresce em linhas** conforme a quantidade de macroatividades, sem sobrepor (como no primeiro roadmap). Setas do fim da predecessora ao início da sucessora: **entre frentes** em cinza escuro (clicáveis, filtram a lista) e **dentro da mesma frente** em cinza claro e fino; vermelha tracejada se atrasada ou em conflito. Raia sem nenhuma macroatividade mostra "Sem cronograma" e as hipóteses dela;
    - passar o mouse numa frente destaca as conectadas; clicar na frente ou numa seta filtra a lista; duplo clique na frente abre o detalhe;
    - lista "Dependências por par de frentes": em risco primeiro, depois hipóteses; cada par mostra o estado e as macroatividades que o formam (ou o aviso para validar com os líderes).
 5. Legenda compacta (3 linhas) abaixo do plano.
