@@ -1,8 +1,8 @@
 command: ["python", "app.py"]
 env:
-  - name: DATABRICKS_WAREHOUSE_ID
-    valueFrom: sql-warehouse        # nome do recurso "SQL warehouse" adicionado ao app
+  - name: WAREHOUSE_ID
+    value: "COLE_O_ID_DO_WAREHOUSE"   # final do HTTP path: /sql/1.0/warehouses/XXXX
   - name: TABELAS
-    value: "catalogo.schema"        # troque pelo seu catálogo.schema
+    value: "catalogo.schema"          # troque pelo seu catálogo.schema
   - name: EDITORES
-    value: "seu.email@empresa.com"  # quem pode abrir /editar (separe por vírgula)
+    value: "seu.email@empresa.com"    # quem pode abrir /editar (separe por vírgula)

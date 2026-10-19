@@ -17,6 +17,11 @@ cfg = Config()
 
 HTML = open(os.path.join(BASE, "static", "dashexecutivo.html"), encoding="utf-8").read()
 FONTS_CSS = "".join(re.findall(r"@font-face\{[^}]*\}", HTML))
+# ID do SQL warehouse. Se o app.yaml não entregar a variável, cole o ID aqui, entre aspas.
+WAREHOUSE_ID_FIXO = ""
+WAREHOUSE_ID = (
+    os.environ.get("WAREHOUSE_ID") or os.environ.get("DATABRICKS_WAREHOUSE_ID") or WAREHOUSE_ID_FIXO
+).strip()
 SCHEMA = os.environ.get("TABELAS", "catalogo.schema")  # catalogo.schema
 EDITORES = {e.strip().lower() for e in os.environ.get("EDITORES", "").split(",") if e.strip()}
 CACHE_SEG = int(os.environ.get("CACHE_SEG", "300"))
@@ -29,9 +34,16 @@ AUTOMATICAS = {"AlteradoPor", "AlteradoEm"}  # preenchidas pelo app
 
 # ---------- acesso ao SQL warehouse ----------
 def executar(consulta, params=None, retorna=True):
+    if not WAREHOUSE_ID:
+        lidas = [n for n in ("WAREHOUSE_ID", "DATABRICKS_WAREHOUSE_ID", "TABELAS", "EDITORES") if os.environ.get(n)]
+        raise RuntimeError(
+            "ID do warehouse não encontrado. Variáveis recebidas do app.yaml: "
+            + (", ".join(lidas) or "nenhuma")
+            + ". Defina WAREHOUSE_ID no app.yaml ou preencha WAREHOUSE_ID_FIXO no app.py."
+        )
     with sql.connect(
         server_hostname=cfg.host,
-        http_path=f"/sql/1.0/warehouses/{os.environ['DATABRICKS_WAREHOUSE_ID']}",
+        http_path=f"/sql/1.0/warehouses/{WAREHOUSE_ID}",
         credentials_provider=lambda: cfg.authenticate,
     ) as conn, conn.cursor() as cur:
         cur.execute(consulta, params or {})
