@@ -1,5 +1,5 @@
 import React from "react"
-import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiPrinterLine } from "@remixicon/react"
+import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiEditLine, RiPrinterLine } from "@remixicon/react"
 import { cx } from "./utils/cx"
 import { fmt, parseData } from "./data"
 import { ChipDep } from "./ChipDep"
@@ -17,6 +17,7 @@ declare global {
     FRENTES_FLUXO?: Linhas
     DADOS_FLUXO?: Linhas
     GERADO_EM?: string
+    EDITAR_URL?: string // preenchido pelo app do Databricks, só para quem pode editar
   }
 }
 
@@ -282,14 +283,25 @@ export default function App() {
           </>
         )}
       </div>
-      <button
-        type="button"
-        onClick={() => window.print()}
-        className="fixed bottom-3 right-3 z-40 flex items-center gap-1 rounded-full border border-gray-300 bg-white/90 px-2.5 py-1 text-xs font-medium text-gray-600 shadow-sm backdrop-blur hover:bg-white print:hidden"
-        title="Imprimir ou salvar em PDF (formato slide 16:9)"
-      >
-        <RiPrinterLine className="size-3.5" /> PDF
-      </button>
+      <div className="fixed bottom-3 right-3 z-40 flex items-center gap-2 print:hidden">
+        {window.EDITAR_URL && (
+          <a
+            href={window.EDITAR_URL}
+            className="flex items-center gap-1 rounded-full border border-gray-300 bg-white/90 px-2.5 py-1 text-xs font-medium text-gray-600 shadow-sm backdrop-blur hover:bg-white"
+            title="Editar os dados do painel"
+          >
+            <RiEditLine className="size-3.5" /> Editar
+          </a>
+        )}
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="flex items-center gap-1 rounded-full border border-gray-300 bg-white/90 px-2.5 py-1 text-xs font-medium text-gray-600 shadow-sm backdrop-blur hover:bg-white"
+          title="Imprimir ou salvar em PDF (formato slide 16:9)"
+        >
+          <RiPrinterLine className="size-3.5" /> PDF
+        </button>
+      </div>
       {aberta && <Detalhe f={aberta} onFechar={fechar} prog={prog} />}
     </div>
   )

@@ -82,7 +82,12 @@ def home():
             .replace("/*GERADO_EM*/", agora)
         )
         _cache["t"] = time.time()
-    return Response(_cache["html"], mimetype="text/html")
+    html = _cache["html"]
+    if pode_editar():  # o botão "Editar" só aparece para quem está em EDITORES
+        html = html.replace("</head>", '<script>window.EDITAR_URL="/editar";</script></head>', 1)
+    resp = Response(html, mimetype="text/html")
+    resp.headers["Cache-Control"] = "private, no-store"  # a página varia conforme o usuário
+    return resp
 
 
 # ---------- edição (só para quem está em EDITORES) ----------
