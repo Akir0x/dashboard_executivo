@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import time
 import datetime as dt
@@ -13,6 +14,7 @@ app = Flask(__name__, static_folder=os.path.join(BASE, "static"))
 cfg = Config()
 
 HTML = open(os.path.join(BASE, "static", "dashexecutivo.html"), encoding="utf-8").read()
+FONTS_CSS = "".join(re.findall(r"@font-face\{[^}]*\}", HTML))
 SCHEMA = os.environ.get("TABELAS", "catalogo.schema")  # catalogo.schema
 EDITORES = {e.strip().lower() for e in os.environ.get("EDITORES", "").split(",") if e.strip()}
 CACHE_SEG = int(os.environ.get("CACHE_SEG", "300"))
@@ -97,6 +99,14 @@ def negado():
     if not EDITORES:
         msg = "Defina a variável EDITORES no app.yaml (e-mails separados por vírgula)."
     return jsonify(erro=msg), 403
+
+
+@app.route("/fonts.css")
+def fontes():
+    # Reaproveita as fontes (Barlow) que já estão embutidas no HTML do painel.
+    resp = Response(FONTS_CSS, mimetype="text/css")
+    resp.headers["Cache-Control"] = "public, max-age=86400"
+    return resp
 
 
 @app.route("/editar")

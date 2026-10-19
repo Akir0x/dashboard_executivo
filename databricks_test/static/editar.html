@@ -4,44 +4,84 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Editar dados do painel</title>
+<link rel="stylesheet" href="/fonts.css">
 <style>
-  :root { --borda:#d9dde3; --fundo:#f6f7f9; --texto:#1f2937; --cinza:#6b7280; --azul:#1d4ed8; --verm:#b91c1c; }
-  * { box-sizing: border-box; }
-  body { margin:0; font:14px/1.4 system-ui, "Segoe UI", sans-serif; color:var(--texto); background:var(--fundo); }
-  header { display:flex; gap:16px; align-items:baseline; padding:14px 20px; background:#fff; border-bottom:1px solid var(--borda); }
-  header h1 { margin:0; font-size:18px; }
-  header span, header a { color:var(--cinza); font-size:13px; }
-  nav { display:flex; gap:4px; padding:12px 20px 0; }
-  nav button { border:1px solid var(--borda); border-bottom:none; background:#eceff3; padding:8px 14px; border-radius:6px 6px 0 0; cursor:pointer; font:inherit; }
-  nav button.ativa { background:#fff; font-weight:600; }
-  main { padding:0 20px 24px; }
-  .caixa { background:#fff; border:1px solid var(--borda); border-radius:0 6px 6px 6px; padding:12px; overflow:auto; max-height:calc(100vh - 190px); }
-  table { border-collapse:collapse; min-width:100%; }
-  th, td { border-bottom:1px solid var(--borda); padding:4px; vertical-align:top; text-align:left; white-space:nowrap; }
-  th { position:sticky; top:0; background:#fff; font-size:12px; color:var(--cinza); z-index:1; }
-  input, select { font:inherit; padding:5px 6px; border:1px solid var(--borda); border-radius:4px; min-width:90px; background:#fff; }
-  input[readonly] { background:#f1f3f5; color:var(--cinza); }
+  :root {
+    --fundo:#f3f2ee; --card:#fff; --borda:#d9d6cf; --linha:#e2dfd8;
+    --tinta:#1d2530; --tinta2:#2b3644; --cinza:#6b7280; --cinza2:#4b5563;
+    --claro:#ebe9e3; --verm:#b4232a; --vermEsc:#9b1d23; --ambar:#b7790f; --verde:#2f7d4f;
+    --corpo:'Barlow', system-ui, 'Segoe UI', sans-serif;
+    --cond:'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.4 var(--corpo); color:var(--tinta); background:var(--fundo); }
+  .pagina { max-width:1600px; margin:0 auto; padding:16px 24px 28px; }
+
+  header { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;
+           border-bottom:3px solid var(--verm); padding-bottom:8px; margin-bottom:14px; }
+  .eyebrow { font:700 14px/1 var(--cond); text-transform:uppercase; letter-spacing:.12em; color:var(--verm); margin-bottom:4px; }
+  h1 { margin:0; font:800 24px/1.15 var(--corpo); color:var(--tinta); }
+  .lado { display:flex; align-items:center; gap:14px; font-size:13px; color:var(--cinza); }
+  .lado a { color:var(--tinta); font-weight:600; text-decoration:none; border:1px solid #c9c5bc; background:#fff; border-radius:999px; padding:4px 12px; }
+  .lado a:hover { background:#ece9e2; }
+
+  .topo { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+  nav { display:flex; gap:6px; flex-wrap:wrap; }
+  nav button { font:600 14px var(--corpo); color:var(--tinta); background:transparent; border:0; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  nav button:hover { background:#e6e3dc; }
+  nav button.ativa { background:var(--tinta); color:#fff; }
+  .acoes { display:flex; align-items:center; gap:12px; }
+  #msg { font-size:13px; font-weight:600; }
+  #msg.erro { color:var(--verm); } #msg.ok { color:var(--verde); }
+
+  .card { background:var(--card); border:1px solid var(--borda); border-radius:2px; overflow:auto; max-height:calc(100vh - 210px); }
+  table { border-collapse:separate; border-spacing:0; min-width:100%; }
+  th { position:sticky; top:0; z-index:2; text-align:left; white-space:nowrap; padding:8px 8px;
+       background:var(--tinta); color:#fff; font:700 13px var(--cond); text-transform:uppercase; letter-spacing:.06em; }
+  th.auto { background:var(--tinta2); }
+  td { padding:5px 6px; border-bottom:1px solid var(--linha); vertical-align:top; white-space:nowrap; }
+  tbody tr:hover td { background:#faf9f6; }
+  tr.nova td { background:#fdf3f3; }
+
+  input, select { font:500 14px var(--corpo); color:var(--tinta); padding:5px 7px; min-width:96px;
+                  border:1px solid #cfccc4; border-radius:2px; background:#fff; }
+  input:focus, select:focus { outline:2px solid var(--verm); outline-offset:-1px; border-color:var(--verm); }
+  input[readonly] { background:var(--claro); color:var(--cinza2); font-weight:700; }
+  select.v-ok { color:var(--verde); font-weight:700; }
+  select.v-amb { color:var(--ambar); font-weight:700; }
+  select.v-ruim { color:var(--verm); font-weight:700; }
+  select.v-neutro { color:var(--cinza); }
   td.meta { color:var(--cinza); font-size:12px; }
-  button.acao { font:inherit; padding:5px 10px; border-radius:4px; border:1px solid var(--borda); background:#fff; cursor:pointer; }
-  button.salvar { background:var(--azul); color:#fff; border-color:var(--azul); }
-  button.excluir { color:var(--verm); }
-  button:disabled { opacity:.5; cursor:default; }
-  .barra { display:flex; gap:12px; align-items:center; margin:10px 0; }
-  #msg { min-height:20px; font-size:13px; }
-  #msg.erro { color:var(--verm); } #msg.ok { color:#047857; }
+  td.botoes { display:flex; gap:6px; border-bottom:1px solid var(--linha); }
+
+  button.acao { font:600 14px var(--corpo); padding:5px 12px; border-radius:999px; border:1px solid #c9c5bc; background:#fff; color:var(--tinta); cursor:pointer; }
+  button.acao:hover { background:#ece9e2; }
+  button.salvar { background:var(--verm); color:#fff; border-color:var(--verm); border-radius:2px; }
+  button.salvar:hover { background:var(--vermEsc); }
+  button.excluir { color:var(--verm); border-color:#e3b9bb; }
+  button.excluir:hover { background:#fbe9ea; }
+  button:disabled { opacity:.45; cursor:default; }
+  .vazio { padding:28px; text-align:center; color:var(--cinza); }
 </style>
 </head>
 <body>
-<header>
-  <h1>Editar dados do painel</h1>
-  <span id="quem"></span>
-  <a href="/">← Ver painel</a>
-</header>
-<nav id="abas"></nav>
-<main>
-  <div class="barra"><button class="acao" id="nova">+ Nova linha</button><span id="msg"></span></div>
-  <div class="caixa"><table id="grade"></table></div>
-</main>
+<div class="pagina">
+  <header>
+    <div>
+      <div class="eyebrow">Roadmap executivo</div>
+      <h1>Editar dados do painel</h1>
+    </div>
+    <div class="lado"><span id="quem"></span><a href="/">← Ver painel</a></div>
+  </header>
+
+  <div class="topo">
+    <nav id="abas"></nav>
+    <div class="acoes"><span id="msg"></span><button class="acao" id="nova">+ Nova linha</button></div>
+  </div>
+
+  <div class="card"><table id="grade"></table></div>
+</div>
+
 <script>
 const TABELAS = ["tbIniciativas", "tbFrentes", "tbPainel"];
 const STATUS = ["", "OK", "Parcial", "Bloqueio", "Sem informação", "NA"];
@@ -54,6 +94,18 @@ const OPCOES = {
   Escopo: STATUS, Prazo: STATUS, Entregaveis: STATUS,
 };
 const opcoesDe = n => OPCOES[n] || (n.startsWith("Rec_") ? STATUS : null);
+
+// Cor do texto conforme o valor, no mesmo código de cores do painel.
+const COR = {
+  "OK": "v-ok", "Confirmado": "v-ok", "Baixo": "v-ok",
+  "Parcial": "v-amb", "Com condições": "v-amb", "Médio": "v-amb",
+  "Bloqueio": "v-ruim", "Não confirmável": "v-ruim", "Alto": "v-ruim",
+  "NA": "v-neutro", "Sem informação": "v-neutro",
+};
+function pintar(sel) {
+  sel.classList.remove("v-ok", "v-amb", "v-ruim", "v-neutro");
+  const c = COR[sel.value]; if (c) sel.classList.add(c);
+}
 
 let tabela = TABELAS[0], info = null;
 const $ = id => document.getElementById(id);
@@ -84,6 +136,7 @@ function campo(col, valor, travado) {
     el = document.createElement("select");
     ops.forEach(o => { const op = document.createElement("option"); op.value = o; op.textContent = o || "—"; el.appendChild(op); });
     if (valor && !ops.includes(valor)) { const op = document.createElement("option"); op.value = op.textContent = valor; el.appendChild(op); }
+    el.onchange = () => pintar(el);
   } else {
     el = document.createElement("input");
     el.type = col.tipo === "DATE" ? "date" : "text";
@@ -91,11 +144,13 @@ function campo(col, valor, travado) {
   el.value = valor == null ? "" : String(valor).slice(0, col.tipo === "DATE" ? 10 : undefined);
   el.dataset.col = col.nome;
   if (travado) el.readOnly = true;
+  if (ops) pintar(el);
   return el;
 }
 
 function linhaDOM(linha, nova) {
   const tr = document.createElement("tr");
+  if (nova) tr.className = "nova";
   info.colunas.forEach(col => {
     const td = document.createElement("td");
     td.appendChild(campo(col, linha[col.nome], !nova && col.nome === info.chave));
@@ -105,7 +160,7 @@ function linhaDOM(linha, nova) {
   meta.textContent = linha.AlteradoPor ? `${linha.AlteradoPor} · ${String(linha.AlteradoEm || "").replace("T", " ").slice(0, 16)}` : "";
   tr.appendChild(meta);
 
-  const acoes = document.createElement("td");
+  const acoes = document.createElement("td"); acoes.className = "botoes";
   const s = document.createElement("button"); s.textContent = "Salvar"; s.className = "acao salvar";
   s.onclick = () => salvar(tr, s);
   acoes.appendChild(s);
@@ -122,9 +177,16 @@ function desenhar() {
   const g = $("grade"); g.textContent = "";
   const cab = document.createElement("tr");
   info.colunas.forEach(c => { const th = document.createElement("th"); th.textContent = c.nome; cab.appendChild(th); });
-  ["Última alteração", ""].forEach(t => { const th = document.createElement("th"); th.textContent = t; cab.appendChild(th); });
-  g.appendChild(cab);
-  info.linhas.forEach(l => g.appendChild(linhaDOM(l, false)));
+  [["Última alteração", true], ["", true]].forEach(([t, a]) => { const th = document.createElement("th"); th.textContent = t; if (a) th.className = "auto"; cab.appendChild(th); });
+  const thead = document.createElement("thead"); thead.appendChild(cab); g.appendChild(thead);
+  const tb = document.createElement("tbody"); tb.id = "corpo"; g.appendChild(tb);
+  info.linhas.forEach(l => tb.appendChild(linhaDOM(l, false)));
+  if (!info.linhas.length) {
+    const tr = document.createElement("tr"), td = document.createElement("td");
+    td.colSpan = info.colunas.length + 2; td.className = "vazio";
+    td.textContent = "Nenhuma linha ainda. Use “+ Nova linha” para começar.";
+    tr.appendChild(td); tb.appendChild(tr);
+  }
   $("nova").disabled = !info.chave && info.linhas.length >= 1;
 }
 
@@ -136,7 +198,7 @@ function ler(tr) {
 
 async function salvar(tr, botao) {
   botao.disabled = true; aviso("Salvando…");
-  try { await chamar("/api/" + tabela, { linha: ler(tr) }); aviso("Salvo. O painel atualiza em até 5 minutos para quem já estava com ele aberto.", "ok"); await carregar(true); }
+  try { await chamar("/api/" + tabela, { linha: ler(tr) }); aviso("Salvo. O painel atualiza em até 5 minutos.", "ok"); await carregar(true); }
   catch (e) { aviso(e.message, "erro"); }
   botao.disabled = false;
 }
@@ -161,8 +223,10 @@ async function carregar(manterAviso) {
 
 $("nova").onclick = () => {
   if (!info) return;
-  $("grade").appendChild(linhaDOM({}, true));
-  $("grade").lastChild.querySelector("input,select").focus();
+  const tb = $("corpo");
+  if (tb.querySelector(".vazio")) tb.textContent = "";
+  tb.appendChild(linhaDOM({}, true));
+  tb.lastChild.querySelector("input,select").focus();
 };
 
 abas(); carregar();
