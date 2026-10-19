@@ -21,7 +21,7 @@ FONTS_CSS = "".join(re.findall(r"@font-face\{[^}]*\}", HTML))
 WAREHOUSE_ID_FIXO = ""
 WAREHOUSE_ID = (
     os.environ.get("WAREHOUSE_ID") or os.environ.get("DATABRICKS_WAREHOUSE_ID") or WAREHOUSE_ID_FIXO
-).strip()
+).strip().strip("\"'").rstrip("/").split("/")[-1]
 SCHEMA = os.environ.get("TABELAS", "catalogo.schema")  # catalogo.schema
 EDITORES = {e.strip().lower() for e in os.environ.get("EDITORES", "").split(",") if e.strip()}
 CACHE_SEG = int(os.environ.get("CACHE_SEG", "300"))
@@ -41,16 +41,22 @@ def executar(consulta, params=None, retorna=True):
             + (", ".join(lidas) or "nenhuma")
             + ". Defina WAREHOUSE_ID no app.yaml ou preencha WAREHOUSE_ID_FIXO no app.py."
         )
-    with sql.connect(
-        server_hostname=cfg.host,
-        http_path=f"/sql/1.0/warehouses/{WAREHOUSE_ID}",
-        credentials_provider=lambda: cfg.authenticate,
-    ) as conn, conn.cursor() as cur:
-        cur.execute(consulta, params or {})
-        if not retorna:
-            return [], []
-        cols = [d[0] for d in cur.description]
-        return cols, cur.fetchall()
+    try:
+        with sql.connect(
+            server_hostname=cfg.host,
+            http_path=f"/sql/1.0/warehouses/{WAREHOUSE_ID}",
+            credentials_provider=lambda: cfg.authenticate,
+        ) as conn, conn.cursor() as cur:
+            cur.execute(consulta, params or {})
+            if not retorna:
+                return [], []
+            cols = [d[0] for d in cur.description]
+            return cols, cur.fetchall()
+    except Exception as e:  # junta o contexto que ajuda a achar a causa
+        raise RuntimeError(
+            f"{type(e).__name__}: {e} | host={cfg.host} | warehouse={WAREHOUSE_ID} "
+            f"| causa={e.__cause__!r} | contexto={getattr(e, 'context', None)!r}"
+        ) from e
 
 
 def nome_completo(tab):
