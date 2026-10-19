@@ -1,11 +1,13 @@
 import os
 import re
 import json
+import traceback
 import time
 import datetime as dt
 from zoneinfo import ZoneInfo
 
 from flask import Flask, Response, jsonify, request, send_from_directory
+from werkzeug.exceptions import HTTPException
 from databricks import sql
 from databricks.sdk.core import Config
 
@@ -194,6 +196,24 @@ def api_excluir(tab):
     )
     _cache["t"] = 0
     return jsonify(ok=True)
+
+
+@app.errorhandler(Exception)
+def erro_geral(e):
+    """Registra o erro no log do app e mostra o motivo só para quem é editor."""
+    if isinstance(e, HTTPException):
+        return e
+    traceback.print_exc()
+    detalhe = f"{type(e).__name__}: {e}"
+    if request.path.startswith("/api/"):
+        return jsonify(erro=detalhe if pode_editar() else "Erro interno."), 500
+    if pode_editar():
+        return Response(
+            "Erro ao montar a página. Copie esta mensagem:\n\n" + detalhe,
+            status=500,
+            mimetype="text/plain",
+        )
+    return Response("Erro interno. Avise o responsável pelo painel.", status=500, mimetype="text/plain")
 
 
 if __name__ == "__main__":
