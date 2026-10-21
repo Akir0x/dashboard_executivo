@@ -4,7 +4,7 @@ import { Tooltip } from "./components/Tooltip"
 import { cx } from "./utils/cx"
 import { addDias, fmt, hoje, Iniciativa } from "./data"
 import { ChipDep } from "./ChipDep"
-import { conectadas, depEntre, Frente, pior, MARCO_NOME, marcoSt, ordenarCamadas, Pront, PRONT_NOME, Programa, RISCO_NOME, segunda, semanasEntre } from "./exec"
+import { conectadas, depEntre, Frente, MARCO_NOME, marcoSt, ordenarCamadas, Pront, PRONT_NOME, Programa, RISCO_NOME, segunda, semanasEntre } from "./exec"
 import { COR_MARCO, Diamante, ProntIcon, RiscoBars } from "./icones"
 import { corCamada, T } from "./tema"
 
@@ -58,19 +58,22 @@ export function Plano({
   prog,
   janela,
   verDeps,
+  verPront,
+  setVerPront,
   onAbrir,
 }: {
   prog: Programa
   janela: Janela
   verDeps: boolean
+  verPront: boolean
+  setVerPront: (v: boolean) => void
   onAbrir: (f: Frente) => void
 }) {
   const ref = React.useRef<HTMLDivElement>(null)
   const largura = useLargura(ref)
   const [foco, setFoco] = React.useState<string | null>(null)
   const [expandido, setExpandido] = React.useState(false)
-  // Prontidão começa sempre recolhida (uma coluna com 4 mini ícones); o + abre as 4 colunas.
-  const [prontAberta, setProntAberta] = React.useState(false)
+  // Prontidão nasce oculta; o botão "Prontidão" da barra do plano reexibe as 4 colunas.
 
   const camadas = ordenarCamadas(prog.frentes)
   const frentes = prog.frentes
@@ -81,7 +84,7 @@ export function Plano({
     ["Entregáveis", f.entreg],
     ["Recursos", f.recursos],
   ]
-  const cols: ColPront[] = prontAberta
+  const cols: ColPront[] = verPront
     ? [
         { k: "escopo", nome: "Escopo", get: (f) => f.escopo },
         { k: "prazo", nome: "Prazo", get: (f) => f.prazo },
@@ -89,7 +92,7 @@ export function Plano({
         { k: "recursos", nome: "Recursos", get: (f) => f.recursos },
         ...(expandido ? areas.map((a) => ({ k: "a-" + a, nome: a, area: true, get: (f: Frente) => f.areas.find((x) => x.nome === a)?.st ?? "sem" })) : []),
       ]
-    : [{ k: "resumo", nome: "Esc · Prz · Ent · Rec", resumo: true, get: (f) => pior(quatro(f).map((x) => x[1])) }]
+    : []
   const wCol = (c: ColPront) => (c.resumo ? RESUMO : c.area ? AREA : COL)
   const larguraPront = cols.reduce((s, c) => s + wCol(c), 0)
   const RIGHT = larguraPront + RISCO + INTER
@@ -192,20 +195,20 @@ export function Plano({
             </div>
           </div>
           <div className="flex" style={{ width: RIGHT }}>
-            <div style={{ width: larguraPront }} className="flex flex-col">
+            {verPront && <div style={{ width: larguraPront }} className="flex flex-col">
               <div style={{ height: H_MES }} className={cx("flex items-center justify-center gap-1", T.groupHead)}>
                 Prontidão
                 <button
                   type="button"
                   onClick={() => {
-                    setProntAberta(!prontAberta)
+                    setVerPront(false)
                     setExpandido(false)
                   }}
                   className="flex size-4 items-center justify-center rounded-full border border-current print:hidden"
-                  aria-label={prontAberta ? "Recolher prontidão" : "Expandir prontidão"}
-                  title={prontAberta ? "Recolher prontidão" : "Ver escopo, prazo, entregáveis e recursos"}
+                  aria-label="Ocultar prontidão"
+                  title="Ocultar prontidão"
                 >
-                  {prontAberta ? <RiSubtractLine className="size-3" /> : <RiAddLine className="size-3" />}
+                  <RiSubtractLine className="size-3" />
                 </button>
               </div>
               <div className="flex" style={{ height: H_SEM }}>
@@ -230,7 +233,7 @@ export function Plano({
                   </div>
                 ))}
               </div>
-            </div>
+            </div>}
             <div style={{ width: RISCO }} className={cx("flex flex-col items-center justify-end pb-2 text-center leading-tight", T.subHead)}>
               Risco
               <span className="normal-case opacity-70">declarado</span>

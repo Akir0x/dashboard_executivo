@@ -42,6 +42,7 @@ export default function App() {
   const [aba, setAba] = React.useState<"plano" | "mapa" | "frente" | "crit">("plano")
   const [frenteSel, setFrenteSel] = React.useState("")
   const [verDeps, setVerDeps] = React.useState(false)
+  const [verPront, setVerPront] = React.useState(false) // prontidão nasce oculta
   const [desloc, setDesloc] = React.useState(0)
   const abrirFrente = (id: string) => {
     setFrenteSel(id)
@@ -147,6 +148,9 @@ export default function App() {
                   <button type="button" className={cx(pequeno, verDeps && "bg-gray-900/5 text-gray-900")} onClick={() => setVerDeps(!verDeps)} aria-pressed={verDeps}>
                     Ver dependências
                   </button>
+                  <button type="button" className={cx(pequeno, verPront && "bg-gray-900/5 text-gray-900")} onClick={() => setVerPront(!verPront)} aria-pressed={verPront}>
+                    Prontidão
+                  </button>
                   <button type="button" className={cx(pequeno, "flex items-center gap-0.5")} onClick={() => setAba("mapa")}>
                     Mapa de interdependências <RiArrowRightSLine className="size-3.5" />
                   </button>
@@ -155,7 +159,7 @@ export default function App() {
                   </button>
                 </div>
               </div>
-              <Plano prog={prog} janela={janela} verDeps={verDeps} onAbrir={setAberta} />
+              <Plano prog={prog} janela={janela} verDeps={verDeps} verPront={verPront} setVerPront={setVerPront} onAbrir={setAberta} />
             </section>
             <footer className="mt-2">
               <LegendaPlano camadas={camadas} />
