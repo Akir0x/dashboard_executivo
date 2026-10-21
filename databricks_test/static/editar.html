@@ -83,7 +83,7 @@
 </div>
 
 <script>
-const TABELAS = ["tbIniciativas", "tbFrentes", "tbPainel"];
+const TABELAS = ["tbIniciativas", "tbFrentes", "tbPainel", "tbPontos"];
 const STATUS = ["", "OK", "Parcial", "Bloqueio", "Sem informação", "NA"];
 const OPCOES = {
   Concluida: ["", "Sim", "Não"],
@@ -92,8 +92,11 @@ const OPCOES = {
   Veredito: ["", "Não confirmável", "Com condições", "Confirmado"],
   Camada: ["", "Fundação", "Motor & Sistemas", "Experiência", "Operação"],
   Escopo: STATUS, Prazo: STATUS, Entregaveis: STATUS,
+  Tipo: ["", "Evolução", "Pendência", "Atenção", "Risco"],
+  Criticidade: ["", "Crítico", "Alto", "Médio", "Baixo"],
 };
-const opcoesDe = n => OPCOES[n] || (n.startsWith("Rec_") ? STATUS : null);
+// Na tbPontos, "Prazo" é data ou texto livre (ex.: a definir), não status de prontidão.
+const opcoesDe = n => (tabela === "tbPontos" && n === "Prazo" ? null : OPCOES[n] || (n.startsWith("Rec_") ? STATUS : null));
 
 // Cor do texto conforme o valor, no mesmo código de cores do painel.
 const COR = {

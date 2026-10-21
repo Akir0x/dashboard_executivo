@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS catalogo.schema.tbIniciativas (
   Predecessoras  STRING,
   Sucessoras     STRING,
   Concluida      STRING,   -- Sim / Não
+  Responsavel    STRING,   -- opcional (detalhe da frente)
+  Avanco         STRING,   -- opcional, ex.: 30%
   AlteradoPor    STRING,
   AlteradoEm     TIMESTAMP
 );
@@ -43,6 +45,14 @@ CREATE TABLE IF NOT EXISTS catalogo.schema.tbFrentes (
   RiscoDescricao STRING,
   RecebeDe       STRING,
   EntregaPara    STRING,
+  NomeCurto      STRING,   -- opcionais do detalhe da frente
+  Descricao      STRING,
+  Area           STRING,
+  Sponsor        STRING,
+  EscopoComentario      STRING,
+  PrazoComentario       STRING,
+  EntregaveisComentario STRING,
+  RecursosComentario    STRING,
   AlteradoPor    STRING,
   AlteradoEm     TIMESTAMP
 );
@@ -55,9 +65,33 @@ CREATE TABLE IF NOT EXISTS catalogo.schema.tbPainel (
   DependenciasEmRisco  STRING,
   FrentesComPendencia  STRING,
   BloqueiosProntidao   STRING,
+  TituloEvolucao       STRING,   -- título da tela "Evolução e pontos críticos"
   AlteradoPor          STRING,
   AlteradoEm           TIMESTAMP
 );
+
+-- Pendências, pontos de atenção, riscos e evolução (preenchida à mão)
+CREATE TABLE IF NOT EXISTS catalogo.schema.tbPontos (
+  ID           STRING,   -- chave para o editor (ex.: 1, 2, 3...)
+  Tipo         STRING,   -- Evolução / Pendência / Atenção / Risco
+  Titulo       STRING,
+  Descricao    STRING,
+  Acao         STRING,   -- plano de ação / decisão necessária
+  Frente       STRING,   -- IDs de frente separados por ; ou Todas
+  Responsavel  STRING,
+  Prazo        STRING,   -- data (AAAA-MM-DD ou DD/MM/AAAA) ou texto, ex.: a definir
+  Criticidade  STRING,   -- Crítico / Alto / Médio / Baixo
+  Data         DATE,     -- data da evolução
+  Fonte        STRING,
+  AlteradoPor  STRING,
+  AlteradoEm   TIMESTAMP
+);
+
+-- Se as tabelas já existiam antes desta versão, rode também (uma vez):
+-- ALTER TABLE catalogo.schema.tbIniciativas ADD COLUMNS (Responsavel STRING, Avanco STRING);
+-- ALTER TABLE catalogo.schema.tbFrentes ADD COLUMNS (NomeCurto STRING, Descricao STRING, Area STRING, Sponsor STRING,
+--   EscopoComentario STRING, PrazoComentario STRING, EntregaveisComentario STRING, RecursosComentario STRING);
+-- ALTER TABLE catalogo.schema.tbPainel ADD COLUMNS (TituloEvolucao STRING);
 
 -- ------------------------------------------------------------
 -- 2) PERMISSÕES DO APP (escolha UMA opção e descomente: Ctrl+/ )
@@ -74,6 +108,7 @@ CREATE TABLE IF NOT EXISTS catalogo.schema.tbPainel (
 -- GRANT SELECT, MODIFY ON TABLE catalogo.schema.tbIniciativas TO `ID-DO-SERVICE-PRINCIPAL`;
 -- GRANT SELECT, MODIFY ON TABLE catalogo.schema.tbFrentes     TO `ID-DO-SERVICE-PRINCIPAL`;
 -- GRANT SELECT, MODIFY ON TABLE catalogo.schema.tbPainel      TO `ID-DO-SERVICE-PRINCIPAL`;
+-- GRANT SELECT, MODIFY ON TABLE catalogo.schema.tbPontos      TO `ID-DO-SERVICE-PRINCIPAL`;
 
 -- No catálogo o app só precisa de USE CATALOG. Veja se ele já tem:
 -- SHOW GRANTS ON CATALOG catalogo;

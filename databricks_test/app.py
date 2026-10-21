@@ -28,7 +28,7 @@ CACHE_SEG = int(os.environ.get("CACHE_SEG", "300"))
 _cache = {"t": 0, "html": ""}
 
 # Tabelas editáveis e a coluna-chave de cada uma (None = linha única).
-CHAVES = {"tbIniciativas": "ID", "tbFrentes": "ID", "tbPainel": None}
+CHAVES = {"tbIniciativas": "ID", "tbFrentes": "ID", "tbPainel": None, "tbPontos": "ID"}
 AUTOMATICAS = {"AlteradoPor", "AlteradoEm"}  # preenchidas pelo app
 
 
@@ -90,6 +90,15 @@ def ler(tab):
     return [dict(zip(cols, r)) for r in rows]
 
 
+def ler_opcional(tab):
+    """Para tabelas novas (ex.: tbPontos): se ainda não existir, o painel abre sem ela."""
+    try:
+        return ler(tab)
+    except Exception:
+        app.logger.warning("Tabela %s não encontrada ou sem permissão; seguindo sem ela.", tab)
+        return []
+
+
 # ---------- painel (somente leitura) ----------
 @app.route("/")
 def home():
@@ -99,6 +108,7 @@ def home():
             HTML.replace("/*PAINEL*/[]", js(ler("tbPainel")))
             .replace("/*FRENTES*/[]", js(ler("tbFrentes")))
             .replace("/*DADOS*/[]", js(ler("tbIniciativas")))
+            .replace("/*PONTOS*/[]", js(ler_opcional("tbPontos")))
             .replace("/*GERADO_EM*/", agora)
         )
         _cache["t"] = time.time()

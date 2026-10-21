@@ -49,6 +49,34 @@ export interface Frente {
   pendente: boolean
   emRisco: boolean
   motivosRisco: string[]
+  // campos do detalhe (opcionais na tbFrentes)
+  descricao: string
+  area: string
+  sponsor: string
+  curto: string
+  comentario: { escopo: string; prazo: string; entreg: string; recursos: string }
+}
+
+export type TipoPonto = "evolucao" | "pendencia" | "atencao" | "risco"
+export type Criticidade = "critico" | "alto" | "medio" | "baixo" | ""
+export const TIPO_NOME: Record<TipoPonto, string> = { evolucao: "Evolução", pendencia: "Pendência", atencao: "Ponto de atenção", risco: "Risco" }
+export const CRIT_NOME: Record<Exclude<Criticidade, "">, string> = { critico: "Crítico", alto: "Alto", medio: "Médio", baixo: "Baixo" }
+
+// Linha da tbPontos (preenchida à mão): evolução, pendência, ponto de atenção ou risco.
+export interface Ponto {
+  n: number
+  tipo: TipoPonto
+  titulo: string
+  descricao: string
+  acao: string // plano de ação / decisão necessária
+  frentes: string[] // IDs de frente; vazio + todas=true quando "Todas"
+  todas: boolean
+  responsavel: string
+  prazo: Date | null
+  prazoTxt: string // texto original quando não é data (ex.: "a definir")
+  criticidade: Criticidade
+  data: Date | null
+  fonte: string
 }
 
 export interface Painel {
@@ -58,6 +86,7 @@ export interface Painel {
   leitura: Date
   prazo: Date | null
   obs: string
+  tituloEvolucao: string
   // Indicadores digitados na tbPainel (vazio = o painel calcula)
   manual: { semCrono: Manual; depsRisco: Manual; pendencia: Manual; bloqueios: Manual }
 }
@@ -97,6 +126,7 @@ export interface Programa {
   iniciativas: Iniciativa[]
   deps: Dependencia[]
   porId: Map<string, Frente>
+  pontos: Ponto[]
 }
 
 const norm = (k: unknown) =>
@@ -161,6 +191,7 @@ export function montar(
   frentesRows: Record<string, unknown>[],
   iniRows: Record<string, unknown>[],
   leituraFluxo?: Date | null,
+  pontosRows: Record<string, unknown>[] = [],
 ): Programa {
   const p = painelRows[0] ?? {}
   const painel: Painel = {
@@ -171,6 +202,7 @@ export function montar(
     leitura: leituraFluxo ?? parseData(campo(p, "dataleitura", "leitura")) ?? hoje,
     prazo: parseData(campo(p, "prazofinal", "prazo")),
     obs: txt(campo(p, "observacaopmo", "observacao", "obs")),
+    tituloEvolucao: txt(campo(p, "tituloevolucao")),
     manual: {
       semCrono: parseManual(campo(p, "frentessemcronograma")),
       depsRisco: parseManual(campo(p, "dependenciasemrisco")),
@@ -222,6 +254,16 @@ export function montar(
       pendente: todasPront.some((s) => s !== "ok" && s !== "na"),
       emRisco: false,
       motivosRisco: [],
+      descricao: txt(campo(r, "descricao", "descricaofrente")),
+      area: txt(campo(r, "area")),
+      sponsor: txt(campo(r, "sponsor", "patrocinador")),
+      curto: txt(campo(r, "nomecurto", "apelido")) || (nome || id).split(/\s+/).filter((w) => w.length > 3)[0] || nome || id,
+      comentario: {
+        escopo: txt(campo(r, "escopocomentario", "comentarioescopo")),
+        prazo: txt(campo(r, "prazocomentario", "comentarioprazo")),
+        entreg: txt(campo(r, "entregaveiscomentario", "comentarioentregaveis")),
+        recursos: txt(campo(r, "recursoscomentario", "comentariorecursos")),
+      },
     })
   }
 
@@ -290,7 +332,36 @@ export function montar(
     f.entrega = deps.filter((d) => d.de === f.id).map((d) => d.para)
   }
 
-  return { painel, frentes, iniciativas, deps, porId }
+  // tbPontos: evolução, pendências, pontos de atenção e riscos (preenchida à mão).
+  const pontos: Ponto[] = []
+  pontosRows.forEach((r, n) => {
+    const titulo = txt(campo(r, "titulo"))
+    const descricao = txt(campo(r, "descricao", "descricaodorisco", "descricaorisco"))
+    if (!titulo && !descricao) return
+    const tn = norm(campo(r, "tipo"))
+    const tipo: TipoPonto = tn.startsWith("evol") ? "evolucao" : tn.startsWith("pend") ? "pendencia" : tn.startsWith("risc") ? "risco" : "atencao"
+    const fr = txt(campo(r, "frente", "frentes"))
+    const todas = ["todas", "todos", "all", "geral"].includes(norm(fr))
+    const cn = norm(campo(r, "criticidade", "severidade"))
+    const prazoBruto = campo(r, "prazo", "dataprevista")
+    pontos.push({
+      n,
+      tipo,
+      titulo,
+      descricao,
+      acao: txt(campo(r, "acao", "decisao", "planodeacao")),
+      frentes: todas ? [] : listaIds(fr).map((x) => (porId.has(x) ? x : frentes.find((f) => norm(f.nome) === norm(x) || norm(f.curto) === norm(x))?.id ?? x)),
+      todas,
+      responsavel: txt(campo(r, "responsavel", "dono")),
+      prazo: parseData(prazoBruto),
+      prazoTxt: parseData(prazoBruto) ? "" : txt(prazoBruto),
+      criticidade: cn.startsWith("crit") ? "critico" : cn.startsWith("alt") ? "alto" : cn.startsWith("med") ? "medio" : cn.startsWith("baix") ? "baixo" : "",
+      data: parseData(campo(r, "data", "dataatualizacao")),
+      fonte: txt(campo(r, "fonte")),
+    })
+  })
+
+  return { painel, frentes, iniciativas, deps, porId, pontos }
 }
 
 export const depEntre = (prog: Programa, de: string, para: string) => prog.deps.find((d) => d.de === de && d.para === para)

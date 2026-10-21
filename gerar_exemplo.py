@@ -13,6 +13,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.utils import get_column_letter
 
 AQUI = Path(__file__).parent
 D = date
@@ -92,6 +93,58 @@ INICIATIVAS = [
     for (i, m, f, a, b, pr, su, c) in INICIATIVAS
 ]
 
+# ---------- campos do detalhe e da tela de evolução/criticidade ----------
+PAINEL_CAB = PAINEL_CAB + ["TituloEvolucao"]
+PAINEL = [PAINEL[0] + ("Desde a última diretiva: o que avançou e o que ainda trava jan/27",)]
+
+_DETALHE = {  # ID da frente: (NomeCurto, Descricao, Area, Sponsor, EscopoComentario, PrazoComentario, EntregaveisComentario, RecursosComentario)
+    "01": ("Dados", "Validação das fontes de dados de clientes e disponibilização para o motor.", "Dados", "Marcos Vieira",
+           "Fontes principais validadas; faltam 2 bases secundárias.", "Validação vence em 23/10; consolidação em 27/11.", "5 macroatividades com datas; 2 concluídas.", "Todas as áreas alocadas."),
+    "02": ("Motor", "Motor de regras que calcula a elegibilidade e o benefício.", "Tecnologia", "Marcos Vieira",
+           "Regras de exceção em discussão.", "Depende da base validada (frente 01).", "Entregáveis mapeados e datados.", "CRM e Preço com alocação parcial."),
+    "03": ("Portfólio", "Definição do novo portfólio de serviços e sua carga nos sistemas.", "Produtos", "Luísa Campos",
+           "Escopo fechado.", "Data final comprometida.", "Entregáveis mapeados.", "Time de dados sem alocação confirmada."),
+    "04": ("Parceiro", "Integração com parceiro externo para informar elegibilidade.", "Parcerias", "Luísa Campos",
+           "Escopo mínimo ainda não acordado com o parceiro.", "Sem cronograma do parceiro.", "Requisitos em levantamento.", "Equipe do parceiro não confirmada."),
+    "05": ("Cobrança", "Adaptação do sistema de cobrança para aplicar o novo benefício.", "Tecnologia", "Marcos Vieira",
+           "Escopo fechado.", "Janela de congelamento reduz testes.", "Entregáveis mapeados.", "Áreas alocadas."),
+    "06": ("Cliente", "Jornada e comunicação do benefício para o cliente.", "Canais", "Paula Moraes",
+           "Canal do MVP em decisão.", "Lançamento depende do motor.", "Telas finais em andamento.", "Áreas alocadas."),
+    "07": ("Atendente", "Ferramentas e treinamento da rede de atendimento.", "Canais", "Paula Moraes",
+           "Escopo mínimo em aberto.", "Treinamento concorre com campanhas.", "Roteiro em andamento.", "Preço com alocação parcial."),
+    "08": ("Conciliação", "Gestão e conciliação financeira do benefício.", "Operações", "Paula Moraes",
+           "Sem dono definido.", "Sem cronograma.", "Sem entregáveis mapeados.", "Áreas não confirmadas."),
+}
+FRENTES_CAB = FRENTES_CAB + ["NomeCurto", "Descricao", "Area", "Sponsor", "EscopoComentario", "PrazoComentario", "EntregaveisComentario", "RecursosComentario"]
+FRENTES = [l + _DETALHE[l[0]] for l in FRENTES]
+
+_RESP = {
+    "Base de dados de clientes": "Dados · Engenharia", "Motor de regras": "Tecnologia · Motor", "Novo portfólio de serviços": "Produtos",
+    "Adaptação do sistema de cobrança": "Tecnologia · Cobrança", "Experiência do cliente": "Canais · UX", "Experiência do atendente": "Canais · Rede",
+}
+_AVANCO = {"Validação da base": "60%", "Regras de cálculo": "30%", "Desenho do portfólio": "80%", "Especificação": "50%", "Jornada validada": "70%", "Roteiro de atendimento": "40%"}
+INI_CAB = INI_CAB + ["Responsavel", "Avanco"]
+INICIATIVAS = [l + (_RESP.get(l[2], ""), "100%" if l[7] == "Sim" else _AVANCO.get(l[1], "")) for l in INICIATIVAS]
+
+PONTOS_CAB = ["Tipo", "Titulo", "Descricao", "Acao", "Frente", "Responsavel", "Prazo", "Criticidade", "Data", "Fonte"]
+PONTOS = [
+    ("Evolução", "Governança e visão integrada", "Rotina de acompanhamento 3x por semana e fórum quinzenal; macroatividades padronizadas por frente.", "", "Todas", "PMO", None, "", D(2026, 10, 16), "Reunião de acompanhamento"),
+    ("Evolução", "Base de clientes", "Fontes principais validadas; faltam 2 bases secundárias.", "", "01", "Ana Ribeiro", None, "", D(2026, 10, 16), ""),
+    ("Evolução", "Motor de regras", "Arquitetura definida; ingestão passa a depender da base validada.", "", "02", "Carlos Mendes", None, "", D(2026, 10, 14), ""),
+    ("Evolução", "Portfólio", "Pesquisa de nomes concluída, sem fechamento; comissão em 03/11.", "", "03", "Julia Prado", None, "", D(2026, 10, 15), ""),
+    ("Evolução", "Cliente e atendente", "Proposta de canal mínimo apresentada; escopo do atendente em discussão.", "", "06; 07", "Diego Martins", None, "", D(2026, 10, 16), ""),
+    ("Evolução", "Gestão e conciliação", "Frente passou a ter uma única atividade, ainda sem responsável.", "", "08", "Fernanda Rocha", None, "", D(2026, 10, 16), ""),
+    ("Risco", "Canal do MVP: decisão hoje", "Proposta de canal mínimo com cobertura parcial da carteira; canal alternativo exige esforço maior.", "Decidir entre canal mínimo ou condicionar o alternativo à análise de esforço.", "03; 06; 07", "Diego Martins", D(2026, 10, 16), "Crítico", None, "Reunião de 16/10"),
+    ("Risco", "Parceiro sem previsibilidade", "Macroatividades do parceiro sem datas; requisitos fecham em 30/10.", "Fixar escopo mínimo e responsáveis; entregar requisitos e esforço até 30/10.", "04; 02; 08", "Rafael Lima", D(2026, 10, 30), "Crítico", None, ""),
+    ("Risco", "Mensagens 2 e 3 sem dono", "Só a primeira mensagem tem esforço confirmado; as demais dependem do motor.", "Definir quem constrói as mensagens 2 e 3 e o responsável pelo front.", "06; 02; 05", "Beatriz Alves", D(2026, 10, 21), "Alto", None, ""),
+    ("Risco", "Nome do portfólio trava 8 atividades", "Campo obrigatório sem fechamento; trava comissão, materiais e ofertas.", "Fechar o nome e levar à comissão.", "03; 02; 06; 07", "Julia Prado", D(2026, 10, 31), "Alto", None, ""),
+    ("Risco", "Calendários motor × cobrança", "Cobrança homologa em dezembro e depende da base no ambiente de dados.", "Alinhar arquitetura, data de apuração e agenda de testes integrados.", "02; 05", "Carlos Mendes", D(2026, 10, 30), "Médio", None, ""),
+    ("Atenção", "Qualidade de 2 bases secundárias", "Aderência caiu para 50–60%; tratado como ponto de atenção, não bloqueio.", "Investigar a mudança de regra com Engenharia e Produtos.", "01", "Ana Ribeiro", D(2026, 10, 23), "Médio", None, ""),
+    ("Pendência", "Consolidar bases de investimento", "Consolidação exige esforço técnico elevado, sem prazo de refatoração.", "Engenharia estrutura a visão consolidada e o monitoramento de carga.", "01", "Engenharia", D(2026, 11, 26), "", None, ""),
+    ("Pendência", "Regra de elegibilidade não fechada", "Regra pode exigir débito técnico se não for aprovada antes da rotina.", "Aprovar a regra antes da rotina de elegibilidade.", "01; 02", "Ana Ribeiro", "a definir", "", None, ""),
+    ("Pendência", "Escopo mínimo do atendente", "Escopo segue em aberto e a capacidade da equipe não foi estimada.", "Fechar o mínimo e priorizar a capacidade.", "07", "Diego Martins", D(2026, 10, 19), "", None, ""),
+]
+
 fonte = Font(name="Arial", size=10)
 negrito = Font(name="Arial", size=10, bold=True, color="FFFFFF")
 
@@ -111,8 +164,8 @@ def aba(wb, titulo, tabela, cab, linhas, larguras, datas=()):
         for r in range(2, ws.max_row + 1):
             ws[f"{col}{r}"].number_format = "DD/MM/YYYY"
     for i, w in enumerate(larguras):
-        ws.column_dimensions[chr(65 + i)].width = w
-    ultima = chr(64 + len(cab))
+        ws.column_dimensions[get_column_letter(i + 1)].width = w
+    ultima = get_column_letter(len(cab))
     t = Table(displayName=tabela, ref=f"A1:{ultima}{ws.max_row}")
     t.tableStyleInfo = TableStyleInfo(name="TableStyleMedium2", showRowStripes=True)
     ws.add_table(t)
@@ -123,7 +176,7 @@ def aba(wb, titulo, tabela, cab, linhas, larguras, datas=()):
 wb = Workbook()
 wb.remove(wb.active)
 
-ws = aba(wb, "Painel", "tbPainel", PAINEL_CAB, PAINEL, [48, 18, 13, 22, 21, 21, 19], datas="C")
+ws = aba(wb, "Painel", "tbPainel", PAINEL_CAB, PAINEL, [48, 18, 13, 22, 21, 21, 19, 56], datas="C")
 for col in "DEFG":
     ws[f"{col}2"].number_format = "@"  # texto: impede o Excel de transformar 2/8 em data
 dv = DataValidation(type="list", formula1='"Não confirmável,Com condições,Confirmado"', allow_blank=True)
@@ -131,7 +184,7 @@ dv.add("B2:B2")
 ws.add_data_validation(dv)
 
 ws = aba(wb, "Frentes", "tbFrentes", FRENTES_CAB, FRENTES,
-         [6, 32, 18, 18, 10, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 10, 50, 16, 18], datas="FG")
+         [6, 32, 18, 18, 10, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 10, 50, 16, 18, 14, 50, 14, 16, 40, 40, 40, 40], datas="FG")
 pront = DataValidation(type="list", formula1='"OK,Parcial,Bloqueio,Sem informação,NA"', allow_blank=True)
 pront.add("H2:O200")
 ws.add_data_validation(pront)
@@ -142,13 +195,23 @@ sn = DataValidation(type="list", formula1='"Sim,Não"', allow_blank=True)
 sn.add("E2:E200")
 ws.add_data_validation(sn)
 
-ws = aba(wb, "Iniciativas", "tbIniciativas", INI_CAB, INICIATIVAS, [16, 34, 32, 12, 12, 16, 14, 11], datas="DE")
+ws = aba(wb, "Iniciativas", "tbIniciativas", INI_CAB, INICIATIVAS, [16, 34, 32, 12, 12, 16, 14, 11, 24, 10], datas="DE")
 for r in range(2, ws.max_row + 1):
     for col in "AFG":
         ws[f"{col}{r}"].number_format = "@"  # texto: preserva "01; 50; 90"
 sn2 = DataValidation(type="list", formula1='"Sim,Não"', allow_blank=True)
 sn2.add("H2:H1000")
 ws.add_data_validation(sn2)
+
+ws = aba(wb, "Pontos", "tbPontos", PONTOS_CAB, PONTOS, [12, 38, 60, 50, 16, 18, 12, 12, 12, 24], datas="GI")
+tp = DataValidation(type="list", formula1='"Evolução,Pendência,Atenção,Risco"', allow_blank=True)
+tp.add("A2:A500")
+ws.add_data_validation(tp)
+cr = DataValidation(type="list", formula1='"Crítico,Alto,Médio,Baixo"', allow_blank=True)
+cr.add("H2:H500")
+ws.add_data_validation(cr)
+for r in range(2, ws.max_row + 1):
+    ws[f"E{r}"].number_format = "@"
 
 ins = wb.create_sheet("Instruções")
 textos = [
@@ -172,6 +235,13 @@ textos = [
     ("ID: um ou mais números separados por ponto e vírgula (ex.: 01; 50; 90) — uma macroatividade pode reunir várias atividades. Predecessoras/Sucessoras citam esses números.", False),
     ("Cada linha vira um losango na raia da frente, na DataFim. O retângulo da frente vai da menor DataInicio à maior DataFim.", False),
     ("Frente sem nenhuma iniciativa aparece como 'Sem cronograma · data-alvo'.", False),
+    ("", False),
+    ("tbPontos (aba Pontos) — preenchida à mão", True),
+    ("Tipo: Evolução (cartões 'o que avançou'), Pendência ou Atenção (aparecem no detalhe da frente e Atenção também nos pontos críticos) ou Risco (cartões de pontos críticos).", False),
+    ("Titulo e Descricao: o que aconteceu / qual é o risco. Acao: plano de ação ou decisão necessária. Frente: IDs separados por ; ou 'Todas'.", False),
+    ("Responsavel e Prazo (data ou texto como 'a definir'). Criticidade: Crítico, Alto, Médio ou Baixo (agrupa os cartões). Data: data da evolução. Fonte: opcional.", False),
+    ("", False),
+    ("Campos opcionais do detalhe: na tbFrentes, NomeCurto, Descricao, Area, Sponsor e os comentários de prontidão; na tbIniciativas, Responsavel e Avanco (%). Vazio = a tela só não mostra.", False),
     ("", False),
     ("Calculado pelo painel (não preencher): frentes sem cronograma, dependências em risco, frentes com pendência, bloqueios de prontidão, status dos marcos e carga de marcos por semana.", True),
     ("Dependência em risco: se comprovada, quando alguma predecessora está atrasada ou a sucessora começa antes de ela terminar; se hipótese, quando a frente que entrega está sem cronograma, tem Bloqueio, risco Alto ou marco atrasado.", False),
@@ -198,6 +268,7 @@ exemplo = {
     "painel": para_json(PAINEL_CAB, PAINEL),
     "frentes": para_json(FRENTES_CAB, FRENTES),
     "iniciativas": para_json(INI_CAB, INICIATIVAS),
+    "pontos": para_json(PONTOS_CAB, PONTOS),
 }
 (AQUI / "src" / "exemplo.json").write_text(json.dumps(exemplo, ensure_ascii=False, indent=1), encoding="utf-8")
 print("ok", len(FRENTES), "frentes,", len(INICIATIVAS), "iniciativas")

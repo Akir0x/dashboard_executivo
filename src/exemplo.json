@@ -7,7 +7,8 @@
    "FrentesSemCronograma": null,
    "DependenciasEmRisco": null,
    "FrentesComPendencia": null,
-   "BloqueiosProntidao": null
+   "BloqueiosProntidao": null,
+   "TituloEvolucao": "Desde a última diretiva: o que avançou e o que ainda trava jan/27"
   }
  ],
  "frentes": [
@@ -30,7 +31,15 @@
    "RiscoNivel": "Médio",
    "RiscoDescricao": "Volume de dados maior que o previsto pode atrasar a validação.",
    "RecebeDe": "",
-   "EntregaPara": "02"
+   "EntregaPara": "02",
+   "NomeCurto": "Dados",
+   "Descricao": "Validação das fontes de dados de clientes e disponibilização para o motor.",
+   "Area": "Dados",
+   "Sponsor": "Marcos Vieira",
+   "EscopoComentario": "Fontes principais validadas; faltam 2 bases secundárias.",
+   "PrazoComentario": "Validação vence em 23/10; consolidação em 27/11.",
+   "EntregaveisComentario": "5 macroatividades com datas; 2 concluídas.",
+   "RecursosComentario": "Todas as áreas alocadas."
   },
   {
    "ID": "02",
@@ -51,7 +60,15 @@
    "RiscoNivel": "Baixo",
    "RiscoDescricao": "Regras de exceção ainda em discussão com a área de preço.",
    "RecebeDe": "01",
-   "EntregaPara": "04; 05; 06; 07"
+   "EntregaPara": "04; 05; 06; 07",
+   "NomeCurto": "Motor",
+   "Descricao": "Motor de regras que calcula a elegibilidade e o benefício.",
+   "Area": "Tecnologia",
+   "Sponsor": "Marcos Vieira",
+   "EscopoComentario": "Regras de exceção em discussão.",
+   "PrazoComentario": "Depende da base validada (frente 01).",
+   "EntregaveisComentario": "Entregáveis mapeados e datados.",
+   "RecursosComentario": "CRM e Preço com alocação parcial."
   },
   {
    "ID": "03",
@@ -72,7 +89,15 @@
    "RiscoNivel": "Baixo",
    "RiscoDescricao": "Time de dados sem alocação confirmada para a carga.",
    "RecebeDe": "",
-   "EntregaPara": "05; 06; 07"
+   "EntregaPara": "05; 06; 07",
+   "NomeCurto": "Portfólio",
+   "Descricao": "Definição do novo portfólio de serviços e sua carga nos sistemas.",
+   "Area": "Produtos",
+   "Sponsor": "Luísa Campos",
+   "EscopoComentario": "Escopo fechado.",
+   "PrazoComentario": "Data final comprometida.",
+   "EntregaveisComentario": "Entregáveis mapeados.",
+   "RecursosComentario": "Time de dados sem alocação confirmada."
   },
   {
    "ID": "04",
@@ -93,7 +118,15 @@
    "RiscoNivel": "Médio",
    "RiscoDescricao": "Parceiro ainda não confirmou cronograma nem equipe.",
    "RecebeDe": "02",
-   "EntregaPara": "08"
+   "EntregaPara": "08",
+   "NomeCurto": "Parceiro",
+   "Descricao": "Integração com parceiro externo para informar elegibilidade.",
+   "Area": "Parcerias",
+   "Sponsor": "Luísa Campos",
+   "EscopoComentario": "Escopo mínimo ainda não acordado com o parceiro.",
+   "PrazoComentario": "Sem cronograma do parceiro.",
+   "EntregaveisComentario": "Requisitos em levantamento.",
+   "RecursosComentario": "Equipe do parceiro não confirmada."
   },
   {
    "ID": "05",
@@ -114,7 +147,15 @@
    "RiscoNivel": "Médio",
    "RiscoDescricao": "Janela de congelamento de fim de ano reduz o tempo de testes.",
    "RecebeDe": "02; 03",
-   "EntregaPara": "08"
+   "EntregaPara": "08",
+   "NomeCurto": "Cobrança",
+   "Descricao": "Adaptação do sistema de cobrança para aplicar o novo benefício.",
+   "Area": "Tecnologia",
+   "Sponsor": "Marcos Vieira",
+   "EscopoComentario": "Escopo fechado.",
+   "PrazoComentario": "Janela de congelamento reduz testes.",
+   "EntregaveisComentario": "Entregáveis mapeados.",
+   "RecursosComentario": "Áreas alocadas."
   },
   {
    "ID": "06",
@@ -135,7 +176,15 @@
    "RiscoNivel": "Alto",
    "RiscoDescricao": "Depende das definições do motor de regras para fechar as telas.",
    "RecebeDe": "02; 03",
-   "EntregaPara": "08"
+   "EntregaPara": "08",
+   "NomeCurto": "Cliente",
+   "Descricao": "Jornada e comunicação do benefício para o cliente.",
+   "Area": "Canais",
+   "Sponsor": "Paula Moraes",
+   "EscopoComentario": "Canal do MVP em decisão.",
+   "PrazoComentario": "Lançamento depende do motor.",
+   "EntregaveisComentario": "Telas finais em andamento.",
+   "RecursosComentario": "Áreas alocadas."
   },
   {
    "ID": "07",
@@ -156,7 +205,15 @@
    "RiscoNivel": "Alto",
    "RiscoDescricao": "Treinamento da rede concorre com outras campanhas no período.",
    "RecebeDe": "02; 03",
-   "EntregaPara": "08"
+   "EntregaPara": "08",
+   "NomeCurto": "Atendente",
+   "Descricao": "Ferramentas e treinamento da rede de atendimento.",
+   "Area": "Canais",
+   "Sponsor": "Paula Moraes",
+   "EscopoComentario": "Escopo mínimo em aberto.",
+   "PrazoComentario": "Treinamento concorre com campanhas.",
+   "EntregaveisComentario": "Roteiro em andamento.",
+   "RecursosComentario": "Preço com alocação parcial."
   },
   {
    "ID": "08",
@@ -177,7 +234,15 @@
    "RiscoNivel": "Médio",
    "RiscoDescricao": "Sem dono definido para a conciliação financeira.",
    "RecebeDe": "04; 05; 06; 07",
-   "EntregaPara": ""
+   "EntregaPara": "",
+   "NomeCurto": "Conciliação",
+   "Descricao": "Gestão e conciliação financeira do benefício.",
+   "Area": "Operações",
+   "Sponsor": "Paula Moraes",
+   "EscopoComentario": "Sem dono definido.",
+   "PrazoComentario": "Sem cronograma.",
+   "EntregaveisComentario": "Sem entregáveis mapeados.",
+   "RecursosComentario": "Áreas não confirmadas."
   }
  ],
  "iniciativas": [
@@ -189,7 +254,9 @@
    "DataFim": "2026-10-02",
    "Predecessoras": "",
    "Sucessoras": "",
-   "Concluida": "Sim"
+   "Concluida": "Sim",
+   "Responsavel": "Dados · Engenharia",
+   "Avanco": "100%"
   },
   {
    "ID": "20",
@@ -199,7 +266,9 @@
    "DataFim": "2026-10-09",
    "Predecessoras": "10",
    "Sucessoras": "",
-   "Concluida": "Sim"
+   "Concluida": "Sim",
+   "Responsavel": "Dados · Engenharia",
+   "Avanco": "100%"
   },
   {
    "ID": "30",
@@ -209,7 +278,9 @@
    "DataFim": "2026-10-23",
    "Predecessoras": "20",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Dados · Engenharia",
+   "Avanco": "60%"
   },
   {
    "ID": "40",
@@ -219,7 +290,9 @@
    "DataFim": "2026-10-30",
    "Predecessoras": "30",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Tecnologia · Motor",
+   "Avanco": "30%"
   },
   {
    "ID": "50; 51",
@@ -229,7 +302,9 @@
    "DataFim": "2026-11-27",
    "Predecessoras": "40",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Tecnologia · Motor",
+   "Avanco": ""
   },
   {
    "ID": "60",
@@ -239,7 +314,9 @@
    "DataFim": "2026-12-04",
    "Predecessoras": "51",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Tecnologia · Motor",
+   "Avanco": ""
   },
   {
    "ID": "70",
@@ -249,7 +326,9 @@
    "DataFim": "2026-10-30",
    "Predecessoras": "",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Produtos",
+   "Avanco": "80%"
   },
   {
    "ID": "80",
@@ -259,7 +338,9 @@
    "DataFim": "2026-12-04",
    "Predecessoras": "70",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Produtos",
+   "Avanco": ""
   },
   {
    "ID": "90; 91",
@@ -269,7 +350,9 @@
    "DataFim": "2027-01-08",
    "Predecessoras": "80",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Produtos",
+   "Avanco": ""
   },
   {
    "ID": "100",
@@ -279,7 +362,9 @@
    "DataFim": "2026-10-23",
    "Predecessoras": "",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Tecnologia · Cobrança",
+   "Avanco": "50%"
   },
   {
    "ID": "110",
@@ -289,7 +374,9 @@
    "DataFim": "2026-11-13",
    "Predecessoras": "100; 40",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Tecnologia · Cobrança",
+   "Avanco": ""
   },
   {
    "ID": "120; 121; 122",
@@ -299,7 +386,9 @@
    "DataFim": "2026-12-11",
    "Predecessoras": "110; 51",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Tecnologia · Cobrança",
+   "Avanco": ""
   },
   {
    "ID": "130",
@@ -309,7 +398,9 @@
    "DataFim": "2026-12-31",
    "Predecessoras": "122",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Tecnologia · Cobrança",
+   "Avanco": ""
   },
   {
    "ID": "140",
@@ -319,7 +410,9 @@
    "DataFim": "2027-01-29",
    "Predecessoras": "130; 91",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Tecnologia · Cobrança",
+   "Avanco": ""
   },
   {
    "ID": "150",
@@ -329,7 +422,9 @@
    "DataFim": "2026-10-02",
    "Predecessoras": "",
    "Sucessoras": "",
-   "Concluida": "Sim"
+   "Concluida": "Sim",
+   "Responsavel": "Canais · UX",
+   "Avanco": "100%"
   },
   {
    "ID": "160",
@@ -339,7 +434,9 @@
    "DataFim": "2026-10-09",
    "Predecessoras": "150",
    "Sucessoras": "",
-   "Concluida": "Sim"
+   "Concluida": "Sim",
+   "Responsavel": "Canais · UX",
+   "Avanco": "100%"
   },
   {
    "ID": "170",
@@ -349,7 +446,9 @@
    "DataFim": "2026-10-14",
    "Predecessoras": "160",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Canais · UX",
+   "Avanco": "70%"
   },
   {
    "ID": "180",
@@ -359,7 +458,9 @@
    "DataFim": "2026-10-23",
    "Predecessoras": "170",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Canais · UX",
+   "Avanco": ""
   },
   {
    "ID": "190; 191",
@@ -369,7 +470,9 @@
    "DataFim": "2026-12-23",
    "Predecessoras": "180; 60",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Canais · UX",
+   "Avanco": ""
   },
   {
    "ID": "200",
@@ -379,7 +482,9 @@
    "DataFim": "2026-10-09",
    "Predecessoras": "",
    "Sucessoras": "",
-   "Concluida": "Sim"
+   "Concluida": "Sim",
+   "Responsavel": "Canais · Rede",
+   "Avanco": "100%"
   },
   {
    "ID": "210",
@@ -389,7 +494,9 @@
    "DataFim": "2026-10-23",
    "Predecessoras": "200; 20",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Canais · Rede",
+   "Avanco": "40%"
   },
   {
    "ID": "220",
@@ -399,7 +506,191 @@
    "DataFim": "2026-12-23",
    "Predecessoras": "210; 60; 170",
    "Sucessoras": "",
-   "Concluida": "Não"
+   "Concluida": "Não",
+   "Responsavel": "Canais · Rede",
+   "Avanco": ""
+  }
+ ],
+ "pontos": [
+  {
+   "Tipo": "Evolução",
+   "Titulo": "Governança e visão integrada",
+   "Descricao": "Rotina de acompanhamento 3x por semana e fórum quinzenal; macroatividades padronizadas por frente.",
+   "Acao": "",
+   "Frente": "Todas",
+   "Responsavel": "PMO",
+   "Prazo": null,
+   "Criticidade": "",
+   "Data": "2026-10-16",
+   "Fonte": "Reunião de acompanhamento"
+  },
+  {
+   "Tipo": "Evolução",
+   "Titulo": "Base de clientes",
+   "Descricao": "Fontes principais validadas; faltam 2 bases secundárias.",
+   "Acao": "",
+   "Frente": "01",
+   "Responsavel": "Ana Ribeiro",
+   "Prazo": null,
+   "Criticidade": "",
+   "Data": "2026-10-16",
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Evolução",
+   "Titulo": "Motor de regras",
+   "Descricao": "Arquitetura definida; ingestão passa a depender da base validada.",
+   "Acao": "",
+   "Frente": "02",
+   "Responsavel": "Carlos Mendes",
+   "Prazo": null,
+   "Criticidade": "",
+   "Data": "2026-10-14",
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Evolução",
+   "Titulo": "Portfólio",
+   "Descricao": "Pesquisa de nomes concluída, sem fechamento; comissão em 03/11.",
+   "Acao": "",
+   "Frente": "03",
+   "Responsavel": "Julia Prado",
+   "Prazo": null,
+   "Criticidade": "",
+   "Data": "2026-10-15",
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Evolução",
+   "Titulo": "Cliente e atendente",
+   "Descricao": "Proposta de canal mínimo apresentada; escopo do atendente em discussão.",
+   "Acao": "",
+   "Frente": "06; 07",
+   "Responsavel": "Diego Martins",
+   "Prazo": null,
+   "Criticidade": "",
+   "Data": "2026-10-16",
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Evolução",
+   "Titulo": "Gestão e conciliação",
+   "Descricao": "Frente passou a ter uma única atividade, ainda sem responsável.",
+   "Acao": "",
+   "Frente": "08",
+   "Responsavel": "Fernanda Rocha",
+   "Prazo": null,
+   "Criticidade": "",
+   "Data": "2026-10-16",
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Risco",
+   "Titulo": "Canal do MVP: decisão hoje",
+   "Descricao": "Proposta de canal mínimo com cobertura parcial da carteira; canal alternativo exige esforço maior.",
+   "Acao": "Decidir entre canal mínimo ou condicionar o alternativo à análise de esforço.",
+   "Frente": "03; 06; 07",
+   "Responsavel": "Diego Martins",
+   "Prazo": "2026-10-16",
+   "Criticidade": "Crítico",
+   "Data": null,
+   "Fonte": "Reunião de 16/10"
+  },
+  {
+   "Tipo": "Risco",
+   "Titulo": "Parceiro sem previsibilidade",
+   "Descricao": "Macroatividades do parceiro sem datas; requisitos fecham em 30/10.",
+   "Acao": "Fixar escopo mínimo e responsáveis; entregar requisitos e esforço até 30/10.",
+   "Frente": "04; 02; 08",
+   "Responsavel": "Rafael Lima",
+   "Prazo": "2026-10-30",
+   "Criticidade": "Crítico",
+   "Data": null,
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Risco",
+   "Titulo": "Mensagens 2 e 3 sem dono",
+   "Descricao": "Só a primeira mensagem tem esforço confirmado; as demais dependem do motor.",
+   "Acao": "Definir quem constrói as mensagens 2 e 3 e o responsável pelo front.",
+   "Frente": "06; 02; 05",
+   "Responsavel": "Beatriz Alves",
+   "Prazo": "2026-10-21",
+   "Criticidade": "Alto",
+   "Data": null,
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Risco",
+   "Titulo": "Nome do portfólio trava 8 atividades",
+   "Descricao": "Campo obrigatório sem fechamento; trava comissão, materiais e ofertas.",
+   "Acao": "Fechar o nome e levar à comissão.",
+   "Frente": "03; 02; 06; 07",
+   "Responsavel": "Julia Prado",
+   "Prazo": "2026-10-31",
+   "Criticidade": "Alto",
+   "Data": null,
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Risco",
+   "Titulo": "Calendários motor × cobrança",
+   "Descricao": "Cobrança homologa em dezembro e depende da base no ambiente de dados.",
+   "Acao": "Alinhar arquitetura, data de apuração e agenda de testes integrados.",
+   "Frente": "02; 05",
+   "Responsavel": "Carlos Mendes",
+   "Prazo": "2026-10-30",
+   "Criticidade": "Médio",
+   "Data": null,
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Atenção",
+   "Titulo": "Qualidade de 2 bases secundárias",
+   "Descricao": "Aderência caiu para 50–60%; tratado como ponto de atenção, não bloqueio.",
+   "Acao": "Investigar a mudança de regra com Engenharia e Produtos.",
+   "Frente": "01",
+   "Responsavel": "Ana Ribeiro",
+   "Prazo": "2026-10-23",
+   "Criticidade": "Médio",
+   "Data": null,
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Pendência",
+   "Titulo": "Consolidar bases de investimento",
+   "Descricao": "Consolidação exige esforço técnico elevado, sem prazo de refatoração.",
+   "Acao": "Engenharia estrutura a visão consolidada e o monitoramento de carga.",
+   "Frente": "01",
+   "Responsavel": "Engenharia",
+   "Prazo": "2026-11-26",
+   "Criticidade": "",
+   "Data": null,
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Pendência",
+   "Titulo": "Regra de elegibilidade não fechada",
+   "Descricao": "Regra pode exigir débito técnico se não for aprovada antes da rotina.",
+   "Acao": "Aprovar a regra antes da rotina de elegibilidade.",
+   "Frente": "01; 02",
+   "Responsavel": "Ana Ribeiro",
+   "Prazo": "a definir",
+   "Criticidade": "",
+   "Data": null,
+   "Fonte": ""
+  },
+  {
+   "Tipo": "Pendência",
+   "Titulo": "Escopo mínimo do atendente",
+   "Descricao": "Escopo segue em aberto e a capacidade da equipe não foi estimada.",
+   "Acao": "Fechar o mínimo e priorizar a capacidade.",
+   "Frente": "07",
+   "Responsavel": "Diego Martins",
+   "Prazo": "2026-10-19",
+   "Criticidade": "",
+   "Data": null,
+   "Fonte": ""
   }
  ]
 }

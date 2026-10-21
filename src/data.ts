@@ -5,6 +5,8 @@ export type StatusKey = "atr" | "prox" | "ok" | "conc"
 export interface Iniciativa {
   id: string // chave interna da linha (os IDs da célula juntos)
   ids: string[] // IDs das atividades que formam a macroatividade (ex.: 01; 50; 90)
+  resp: string
+  avanco: number | null // % de avanço (0–100), opcional
   macro: string
   frente: string
   ini: Date | null
@@ -65,6 +67,14 @@ export function parseData(v: unknown): Date | null {
   return null
 }
 
+// "30%", "30" ou 0,3 viram 30.
+function parseAvanco(v: unknown): number | null {
+  const s = String(v ?? "").trim().replace(",", ".").replace("%", "")
+  if (!s || isNaN(Number(s))) return null
+  const n = Number(s)
+  return Math.round(n <= 1 && !String(v).includes("%") && s.includes(".") ? n * 100 : n)
+}
+
 const listaIds = (v: unknown) =>
   String(v ?? "")
     .split(/[;,|\n]+/)
@@ -82,6 +92,8 @@ const CAMPOS: Record<string, string[]> = {
   pred: ["predecessoras", "predecessora", "iniciativapredecessora", "iniciativaspredecessoras"],
   suc: ["sucessoras", "sucessora", "iniciativasucessora", "iniciativassucessoras"],
   concl: ["concluida", "concluido", "status"],
+  resp: ["responsavel", "responsaveis", "dono"],
+  avanco: ["avanco", "percentual", "percentualavanco", "avancopercentual"],
 }
 function campo(row: Record<string, unknown>, nome: string): unknown {
   for (const k of Object.keys(row)) if (CAMPOS[nome].includes(norm(k))) return row[k]
@@ -103,6 +115,8 @@ export function normalizar(linhas: Record<string, unknown>[]): Iniciativa[] {
       id,
       ids,
       macro: macro || ids.join("; "),
+      resp: String(campo(r, "resp") ?? "").trim(),
+      avanco: parseAvanco(campo(r, "avanco")),
       frente: String(campo(r, "frente") ?? "").trim() || "Sem frente",
       ini: parseData(campo(r, "ini")),
       fim: parseData(campo(r, "fim")),

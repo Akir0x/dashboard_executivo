@@ -4,7 +4,7 @@ import { Tooltip } from "./components/Tooltip"
 import { cx } from "./utils/cx"
 import { addDias, fmt, hoje, Iniciativa } from "./data"
 import { ChipDep } from "./ChipDep"
-import { conectadas, depEntre, Frente, MARCO_NOME, marcoSt, ordenarCamadas, Pront, PRONT_NOME, Programa, RISCO_NOME, segunda, semanasEntre } from "./exec"
+import { conectadas, depEntre, Frente, pior, MARCO_NOME, marcoSt, ordenarCamadas, Pront, PRONT_NOME, Programa, RISCO_NOME, segunda, semanasEntre } from "./exec"
 import { COR_MARCO, Diamante, ProntIcon, RiscoBars } from "./icones"
 import { corCamada, T } from "./tema"
 
@@ -51,7 +51,8 @@ function useLargura(ref: React.RefObject<HTMLDivElement>) {
   return w
 }
 
-type ColPront = { k: string; nome: string; get: (f: Frente) => Pront; area?: boolean }
+type ColPront = { k: string; nome: string; get: (f: Frente) => Pront; area?: boolean; resumo?: boolean }
+const RESUMO = 112
 
 export function Plano({
   prog,
@@ -68,18 +69,29 @@ export function Plano({
   const largura = useLargura(ref)
   const [foco, setFoco] = React.useState<string | null>(null)
   const [expandido, setExpandido] = React.useState(false)
+  // Prontidão começa sempre recolhida (uma coluna com 4 mini ícones); o + abre as 4 colunas.
+  const [prontAberta, setProntAberta] = React.useState(false)
 
   const camadas = ordenarCamadas(prog.frentes)
   const frentes = prog.frentes
   const areas = [...new Set(frentes.flatMap((f) => f.areas.map((a) => a.nome)))]
-  const cols: ColPront[] = [
-    { k: "escopo", nome: "Escopo", get: (f) => f.escopo },
-    { k: "prazo", nome: "Prazo", get: (f) => f.prazo },
-    { k: "entreg", nome: "Entregáveis", get: (f) => f.entreg },
-    { k: "recursos", nome: "Recursos", get: (f) => f.recursos },
-    ...(expandido ? areas.map((a) => ({ k: "a-" + a, nome: a, area: true, get: (f: Frente) => f.areas.find((x) => x.nome === a)?.st ?? "sem" })) : []),
+  const quatro = (f: Frente): [string, Pront][] => [
+    ["Escopo", f.escopo],
+    ["Prazo", f.prazo],
+    ["Entregáveis", f.entreg],
+    ["Recursos", f.recursos],
   ]
-  const larguraPront = cols.reduce((s, c) => s + (c.area ? AREA : COL), 0)
+  const cols: ColPront[] = prontAberta
+    ? [
+        { k: "escopo", nome: "Escopo", get: (f) => f.escopo },
+        { k: "prazo", nome: "Prazo", get: (f) => f.prazo },
+        { k: "entreg", nome: "Entregáveis", get: (f) => f.entreg },
+        { k: "recursos", nome: "Recursos", get: (f) => f.recursos },
+        ...(expandido ? areas.map((a) => ({ k: "a-" + a, nome: a, area: true, get: (f: Frente) => f.areas.find((x) => x.nome === a)?.st ?? "sem" })) : []),
+      ]
+    : [{ k: "resumo", nome: "Esc · Prz · Ent · Rec", resumo: true, get: (f) => pior(quatro(f).map((x) => x[1])) }]
+  const wCol = (c: ColPront) => (c.resumo ? RESUMO : c.area ? AREA : COL)
+  const larguraPront = cols.reduce((s, c) => s + wCol(c), 0)
   const RIGHT = larguraPront + RISCO + INTER
   const N = janela.semanas.length
   const TW = Math.max(N * 38, largura - LEFT - RIGHT)
@@ -181,15 +193,27 @@ export function Plano({
           </div>
           <div className="flex" style={{ width: RIGHT }}>
             <div style={{ width: larguraPront }} className="flex flex-col">
-              <div style={{ height: H_MES }} className={cx("flex items-center justify-center", T.groupHead)}>
+              <div style={{ height: H_MES }} className={cx("flex items-center justify-center gap-1", T.groupHead)}>
                 Prontidão
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProntAberta(!prontAberta)
+                    setExpandido(false)
+                  }}
+                  className="flex size-4 items-center justify-center rounded-full border border-current print:hidden"
+                  aria-label={prontAberta ? "Recolher prontidão" : "Expandir prontidão"}
+                  title={prontAberta ? "Recolher prontidão" : "Ver escopo, prazo, entregáveis e recursos"}
+                >
+                  {prontAberta ? <RiSubtractLine className="size-3" /> : <RiAddLine className="size-3" />}
+                </button>
               </div>
               <div className="flex" style={{ height: H_SEM }}>
                 {cols.map((c) => (
                   <div
                     key={c.k}
-                    style={{ width: c.area ? AREA : COL }}
-                    className={cx("flex items-center justify-center gap-0.5 text-center leading-tight", T.subHead, c.area && "bg-black/[0.03] normal-case")}
+                    style={{ width: wCol(c) }}
+                    className={cx("flex items-center justify-center gap-0.5 text-center leading-tight", T.subHead, c.area && "bg-black/[0.03] normal-case", c.resumo && "text-[10px] normal-case")}
                   >
                     {c.nome}
                     {c.k === "recursos" && (
@@ -360,8 +384,20 @@ export function Plano({
                 {/* prontidão */}
                 {cols.map((c) => {
                   const st = c.get(f)
+                  if (c.resumo)
+                    return (
+                      <div key={c.k} style={{ width: wCol(c) }} className="flex items-center justify-center gap-1">
+                        {quatro(f).map(([nome, s2]) => (
+                          <Tooltip key={nome} asChild side="top" showArrow={false} content={`${nome}: ${PRONT_NOME[s2]}`}>
+                            <span className="cursor-default">
+                              <ProntIcon st={s2} size={17} />
+                            </span>
+                          </Tooltip>
+                        ))}
+                      </div>
+                    )
                   return (
-                    <div key={c.k} style={{ width: c.area ? AREA : COL }} className={cx("flex items-center justify-center", c.area && "bg-black/[0.03]")}>
+                    <div key={c.k} style={{ width: wCol(c) }} className={cx("flex items-center justify-center", c.area && "bg-black/[0.03]")}>
                       <Tooltip asChild side="top" showArrow={false} content={`${c.nome}: ${PRONT_NOME[st]}`}>
                         <span className="cursor-default">
                           <ProntIcon st={st} size={c.area ? 18 : 20} />
@@ -464,15 +500,15 @@ export function Plano({
             )}
           </div>
           {cols.map((c) => {
-            const ok = frentes.filter((f) => c.get(f) === "ok").length
-            const aplic = frentes.filter((f) => c.get(f) !== "na").length
+            const ok = frentes.filter((f) => (c.resumo ? !f.pendente : c.get(f) === "ok")).length
+            const aplic = frentes.filter((f) => c.resumo || c.get(f) !== "na").length
             return (
-              <div key={c.k} style={{ width: c.area ? AREA : COL }} className={cx("flex flex-col items-center justify-center", c.area && "bg-black/[0.03]")}>
+              <div key={c.k} style={{ width: wCol(c) }} className={cx("flex flex-col items-center justify-center", c.area && "bg-black/[0.03]")}>
                 <span className="text-sm font-bold tabular-nums text-gray-800">
                   {ok}
                   <span className="text-xs font-normal text-gray-500">/{aplic}</span>
                 </span>
-                <span className="text-[10px] text-gray-500">OK</span>
+                <span className="text-[10px] text-gray-500">{c.resumo ? "frentes prontas" : "OK"}</span>
               </div>
             )
           })}
