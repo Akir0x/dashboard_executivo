@@ -1,5 +1,6 @@
 // Tela "Evolução e pontos críticos": alimentada pela tbPontos (preenchida à mão).
 // Evolução = cartões "o que avançou"; Risco e Atenção = cartões de pontos críticos por criticidade.
+import React from "react"
 import { RiArrowLeftSLine, RiCheckboxCircleFill } from "@remixicon/react"
 import { cx } from "./utils/cx"
 import { hoje } from "./data"
@@ -28,7 +29,7 @@ function Frentes({ prog, p, abrir }: { prog: Programa; p: Ponto; abrir: (id: str
   )
 }
 
-export function Criticidade({ prog, onVoltar, abrirFrente }: { prog: Programa; onVoltar: () => void; abrirFrente: (id: string) => void }) {
+function Cartoes({ prog, abrirFrente }: { prog: Programa; abrirFrente: (id: string) => void }) {
   const evol = prog.pontos.filter((p) => p.tipo === "evolucao")
   const crit = prog.pontos
     .filter((p) => p.tipo === "risco" || p.tipo === "atencao")
@@ -37,12 +38,6 @@ export function Criticidade({ prog, onVoltar, abrirFrente }: { prog: Programa; o
 
   return (
     <div className="mt-3 space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
-        <button type="button" className={cx("flex items-center gap-1", T.btn)} onClick={onVoltar}>
-          <RiArrowLeftSLine className="size-4" /> Voltar à visão executiva
-        </button>
-        <span className="text-xs text-gray-500">Fonte: tbPontos · posição em {dm(prog.painel.leitura)}</span>
-      </div>
 
       {/* evolução */}
       <section className={cx("overflow-hidden", T.card)}>
@@ -136,6 +131,155 @@ export function Criticidade({ prog, onVoltar, abrirFrente }: { prog: Programa; o
           <p className="px-4 py-3 text-sm text-gray-500">Nenhum ponto crítico registrado (Tipo = Risco ou Atenção na tbPontos).</p>
         )}
       </section>
+    </div>
+  )
+}
+
+// ---------------- versão principal: lista de evolução + tabela de decisões ----------------
+
+const ordenarCrit = (ps: Ponto[]) =>
+  ps
+    .filter((p) => p.tipo === "risco" || p.tipo === "atencao")
+    .sort((a, b) => ORDEM.indexOf(a.criticidade) - ORDEM.indexOf(b.criticidade) || (a.prazo?.getTime() ?? Infinity) - (b.prazo?.getTime() ?? Infinity))
+
+const FAIXA: Record<TCrit, string> = { critico: "bg-red-600", alto: "bg-amber-500", medio: "bg-slate-500", baixo: "bg-gray-300", "": "bg-gray-300" }
+const nomeCrit = (p: Ponto) => (p.criticidade ? CRIT_NOME[p.criticidade] : p.tipo === "atencao" ? "Atenção" : "Risco")
+
+function ListaEvolucao({ prog, abrir, compacta }: { prog: Programa; abrir: (id: string) => void; compacta?: boolean }) {
+  const evol = prog.pontos.filter((p) => p.tipo === "evolucao")
+  if (!evol.length) return <p className="px-4 py-3 text-sm text-gray-500">Nenhuma evolução registrada.</p>
+  return (
+    <ul className="divide-y divide-black/5">
+      {evol.map((p) => (
+        <li key={p.n} className={cx("flex gap-3", compacta ? "px-4 py-2.5" : "px-6 py-3.5")}>
+          <RiCheckboxCircleFill className={cx("shrink-0 text-emerald-600", compacta ? "mt-0.5 size-5" : "mt-0.5 size-6")} />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <p className={cx("font-semibold text-gray-900", compacta ? "text-[15px] leading-snug" : "text-lg leading-snug")}>{p.titulo}</p>
+              <span className="flex shrink-0 items-center gap-2 pt-0.5">
+                <Frentes prog={prog} p={p} abrir={abrir} />
+                {!compacta && (p.data || p.prazo) && <span className="text-xs tabular-nums text-gray-500">{dm(p.data ?? p.prazo)}</span>}
+              </span>
+            </div>
+            {p.descricao && <p className={cx("text-gray-600", compacta ? "mt-0.5 line-clamp-2 text-[13px] leading-snug" : "mt-1 text-[15px]")}>{p.descricao}</p>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function TabelaDecisoes({ prog, pontos, abrir, grande }: { prog: Programa; pontos: Ponto[]; abrir: (id: string) => void; grande?: boolean }) {
+  const th = "px-3 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-gray-500"
+  const td = cx("px-3 align-top", grande ? "py-3 text-[15px]" : "py-2.5 text-[13px]")
+  return (
+    <table className="w-full border-collapse">
+      <thead className="border-b border-black/10 bg-black/[0.02]">
+        <tr>
+          <th className={cx(th, "w-24")}>Nível</th>
+          <th className={th}>Ponto · situação hoje</th>
+          <th className={th}>Decisão pedida</th>
+          <th className={cx(th, "w-36")}>Dono</th>
+          <th className={cx(th, "w-24")}>Prazo</th>
+          <th className={cx(th, "w-28")}>Frentes</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-black/5">
+        {pontos.map((p) => {
+          const vencido = p.prazo && p.prazo < hoje
+          return (
+            <tr key={p.n} className={cx(p.criticidade === "critico" && "bg-red-50/60")}>
+              <td className={cx(td, "relative pl-4")}>
+                <span className={cx("absolute inset-y-0 left-0 w-1.5", FAIXA[p.criticidade])} />
+                <span className={cx("inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide", COR[p.criticidade].badge)}>{nomeCrit(p)}</span>
+              </td>
+              <td className={td}>
+                <p className={cx("font-bold leading-snug text-gray-900", grande && "text-base")}>{p.titulo}</p>
+                {p.descricao && <p className="mt-0.5 leading-snug text-gray-600">{p.descricao}</p>}
+              </td>
+              <td className={cx(td, "font-medium leading-snug text-gray-900")}>{p.acao || <span className="text-gray-400">a definir</span>}</td>
+              <td className={cx(td, "text-gray-800")}>{p.responsavel || <span className="font-semibold text-red-600">a definir</span>}</td>
+              <td className={cx(td, "tabular-nums font-semibold", vencido || !p.prazo ? "text-red-600" : "text-gray-900")}>
+                {p.prazo ? dm(p.prazo) : p.prazoTxt || "a definir"}
+                {vencido && <span className="block text-[11px] font-medium">vencido</span>}
+              </td>
+              <td className={td}>
+                <Frentes prog={prog} p={p} abrir={abrir} />
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  )
+}
+
+function Contadores({ crit }: { crit: Ponto[] }) {
+  return (
+    <span className="flex items-center gap-1.5 text-xs">
+      {ORDEM.filter((c) => c)
+        .map((c) => ({ c, n: crit.filter((p) => p.criticidade === c).length }))
+        .filter((x) => x.n)
+        .map(({ c, n }) => (
+          <span key={c} className={cx("rounded-full px-2 py-0.5 font-semibold", COR[c].badge)}>
+            {n} {CRIT_NOME[c as Exclude<TCrit, "">].toLowerCase()}
+            {n > 1 ? "s" : ""}
+          </span>
+        ))}
+    </span>
+  )
+}
+
+// Um slide só: evolução em coluna estreita, decisões (Crítico e Alto) em tabela, demais numa linha.
+function UmSlide({ prog, abrir }: { prog: Programa; abrir: (id: string) => void }) {
+  const crit = ordenarCrit(prog.pontos)
+  const topo = crit.filter((p) => p.criticidade === "critico" || p.criticidade === "alto")
+  const resto = crit.filter((p) => !topo.includes(p))
+  return (
+    <div className="mt-3 grid grid-cols-[380px_1fr] gap-3">
+      <section className={cx("overflow-hidden", T.card)}>
+        <div className="border-b border-black/10 px-4 py-2.5">
+          <h3 className={T.painelTitulo}>O que avançou</h3>
+        </div>
+        <ListaEvolucao prog={prog} abrir={abrir} compacta />
+      </section>
+      <section className={cx("flex flex-col overflow-hidden", T.card)}>
+        <div className="flex items-center justify-between gap-3 border-b border-black/10 px-4 py-2.5">
+          <h3 className={T.painelTitulo}>O que trava e o que precisamos decidir</h3>
+          <Contadores crit={crit} />
+        </div>
+        <TabelaDecisoes prog={prog} pontos={topo} abrir={abrir} />
+        {resto.length > 0 && (
+          <p className="mt-auto border-t border-black/10 px-4 py-2 text-[13px] text-gray-600">
+            <b className="text-gray-800">
+              + {resto.length} ponto{resto.length > 1 ? "s" : ""} de menor criticidade:
+            </b>{" "}
+            {resto.map((p) => p.titulo).join(" · ")}
+          </p>
+        )}
+      </section>
+    </div>
+  )
+}
+
+export function Criticidade({ prog, onVoltar, abrirFrente }: { prog: Programa; onVoltar: () => void; abrirFrente: (id: string) => void }) {
+  // Principal: um slide (evolução em lista + tabela de decisões). A versão original em cartões fica num botão.
+  const [cartoes, setCartoes] = React.useState(false)
+  return (
+    <div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 print:hidden">
+        <button type="button" className={cx("flex items-center gap-1", T.btn)} onClick={onVoltar}>
+          <RiArrowLeftSLine className="size-4" /> Voltar à visão executiva
+        </button>
+        <button
+          type="button"
+          onClick={() => setCartoes(!cartoes)}
+          className="rounded px-1.5 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-900/5 hover:text-gray-800"
+        >
+          {cartoes ? "Ver em tabela (1 slide)" : "Ver em cartões"}
+        </button>
+      </div>
+      {cartoes ? <Cartoes prog={prog} abrirFrente={abrirFrente} /> : <UmSlide prog={prog} abrir={abrirFrente} />}
     </div>
   )
 }

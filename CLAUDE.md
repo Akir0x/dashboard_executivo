@@ -1,6 +1,6 @@
 # Roadmap executivo (diretoria)
 
-Painel executivo em **um único arquivo HTML**, irmão do dashboard de acompanhamento de iniciativas. Usa o mesmo esquema de atualização: o Power Automate lê as tabelas do Excel e embute os dados no HTML. Leia tudo antes de propor mudanças.
+Painel executivo em **um único arquivo HTML**, irmão do dashboard de acompanhamento de iniciativas. Usa o mesmo esquema de atualização: **várias pessoas atualizam o Excel e o Power Automate gera o HTML** com os dados embutidos (ver "Atualização por várias pessoas"). Ninguém edita o HTML à mão. Leia tudo antes de propor mudanças.
 
 ## Decisões já tomadas
 
@@ -88,7 +88,12 @@ Onde cada tipo aparece: **detalhe da frente** → só Pendência e Atenção (de
    - lista "Dependências por par de frentes": em risco primeiro, depois hipóteses; cada par mostra o estado e as macroatividades que o formam (ou o aviso para validar com os líderes).
 5. Legenda compacta abaixo do plano, **só Roadmap e Camadas** (a pedido). Prontidão, risco e interdependências não têm legenda: o significado aparece no tooltip ao passar o mouse.
 6. **Detalhe da frente** (`src/Frente.tsx`, inspirado na imagem de referência de "reporte detalhado"): "‹ Voltar à visão executiva" + abas com todas as frentes (nº, ✓ reporte, nome curto); cabeçalho (nº, nome, CP, descrição, área · líder · sponsor · camada; selo de situação "Em andamento · x de y macroatividades concluídas" / Com atraso / Concluída / Sem cronograma; "Fim planejado" = maior DataFim, ou data-alvo, e "faltam ~N semanas"). Esquerda: **Macroatividades** (nome, IDs, período, % avanço, responsável, prazo, **mini linha do tempo** nas mesmas 18 semanas do plano com losango, hoje tracejado e prazo final em vermelho, status) e **Pendências e pontos de atenção** (tbPontos Tipo Pendência/Atenção da frente ou "Todas"; plano de ação + responsável; data prevista com situação vencida / no prazo / sem data; vencidas primeiro). Direita: **Prontidão da frente** (ícone + status + comentário; Recursos com as áreas) e **Interdependências desta frente** (● comprovada / ○ hipótese / ! não declarada; para cada ligação: macroatividades, "fim da predecessora → início da sucessora" e folga em semanas, vermelha se negativa ou em conflito).
-7. **Evolução e pontos críticos** (`src/Criticidade.tsx`, inspirado na 2ª imagem de referência): "‹ Voltar à visão executiva"; bloco **Evolução** (cartões Tipo Evolução: título, chips das frentes ou TODAS, data, descrição); bloco **Pontos críticos de risco e atenção** (Tipo Risco e Atenção, ordenados por criticidade e prazo; contadores por criticidade; cartão com faixa colorida, selo, título, HOJE = Descricao, DECIDIR = Acao, dono, prazo — vermelho se vencido ou sem data —, chips das frentes clicáveis que abrem o detalhe, fonte).
+7. **Evolução e pontos críticos** (`src/Criticidade.tsx`), **pensada para caber em um slide** (versão principal escolhida pelo usuário, "B · 1 slide"): "‹ Voltar à visão executiva" e, à direita, o botão discreto "Ver em cartões" (alterna para a versão original e volta com "Ver em tabela (1 slide)").
+   - **Esquerda, coluna estreita "O que avançou":** lista com uma linha por item do Tipo Evolução (✓, título, chips das frentes ou TODAS, descrição em até 2 linhas).
+   - **Direita, "O que trava e o que precisamos decidir":** contadores por criticidade e **tabela de decisões** só com **Crítico e Alto** (Nível com faixa colorida · Ponto + situação hoje = `Descricao` · Decisão pedida = `Acao` · Dono · Prazo, vermelho se vencido ou sem data · Frentes, chips clicáveis que abrem o detalhe). Linhas críticas com fundo rosado. Ordem: criticidade, depois prazo.
+   - **Rodapé da tabela:** "+ n pontos de menor criticidade: …" (Médio, Baixo e sem criticidade, só os títulos), para o slide não estourar quando a tbPontos crescer.
+   - **Versão em cartões (original):** bloco Evolução em cartões + bloco Pontos críticos em cartões (selo, título, HOJE, DECIDIR, dono, prazo, frentes, fonte), com Risco e Atenção de todas as criticidades.
+   - Uma opção "2 slides" (evolução e decisões em páginas separadas) foi simulada e descartada.
 
 ## Código (`app` deste painel)
 
@@ -108,6 +113,24 @@ gerar_exemplo.py    gera a planilha de exemplo e src/exemplo.json
 ```
 
 Compilar: `npm install` e `npm run build` → gera `dist-tremor/index.html` e `dist-forum/index.html`. Depois confirme que cada marcador aparece exatamente uma vez.
+
+## Atualização por várias pessoas (Power Automate)
+
+**O HTML nunca é editado à mão.** Várias pessoas atualizam o painel, e o caminho é sempre o mesmo:
+
+1. Cada responsável atualiza **a planilha do Excel no SharePoint** (Excel Online, coautoria): o PMO na `tbPainel`, os líderes na `tbFrentes` e na `tbIniciativas` (datas, % de avanço), quem acompanha riscos na `tbPontos`. Ninguém precisa abrir nem conhecer o HTML.
+2. O **fluxo do Power Automate** detecta a alteração (gatilho "arquivo modificado" na pasta do Excel, ou recorrência) e **gera de novo o HTML publicado** a partir do **modelo**, com os dados das 4 tabelas e a data/hora da geração.
+3. Todos baixam o mesmo `roadmap_executivo.html` publicado; o topo mostra "Atualizado em…" para saber se a cópia é a mais recente.
+
+Regras para não quebrar:
+
+- **Uma fonte de verdade:** um único arquivo Excel e um único fluxo. Não criar cópias da planilha por pessoa nem fluxos paralelos gravando o mesmo HTML.
+- **O modelo fica intocado** (pasta separada, de preferência só leitura para a equipe). Quem editar ou sobrescrever o modelo apaga os marcadores e o fluxo deixa de funcionar.
+- **O publicado é sobrescrito a cada execução:** qualquer edição manual nele se perde na próxima atualização.
+- **Não renomear tabelas nem colunas** (`tbPainel`, `tbFrentes`, `tbIniciativas`, `tbPontos` e as colunas acima). Colunas novas podem ser acrescentadas; o painel ignora as que não conhece.
+- **Linhas novas dentro da tabela** do Excel (Tab na última linha ou arrastar a alça), senão o conector "Listar linhas" não as lê.
+- Com o gatilho "arquivo modificado", várias edições seguidas disparam várias execuções; a última vence e o resultado é o mesmo. Se incomodar, use recorrência (ex.: a cada hora) ou ative o *Controle de simultaneidade* = 1 no gatilho.
+- Mudança de visual ou de regra é no código (`src/`), recompilada e **substituindo o modelo**; os dados continuam vindo do Excel.
 
 ## Fluxo do Power Automate
 
