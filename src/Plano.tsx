@@ -1,5 +1,5 @@
 import React from "react"
-import { RiAddLine, RiAlertFill, RiCheckLine, RiSubtractLine } from "@remixicon/react"
+import { RiAddLine, RiCheckLine, RiSubtractLine } from "@remixicon/react"
 import { Tooltip } from "./components/Tooltip"
 import { cx } from "./utils/cx"
 import { addDias, fmt, hoje, Iniciativa } from "./data"
@@ -427,7 +427,6 @@ export function Plano({
                   >
                     <span className="flex cursor-default items-center gap-1">
                       <RiscoBars nivel={f.risco} />
-                      {f.semCrono && <RiAlertFill className="size-3.5 text-amber-500" aria-label="sem cronograma" />}
                     </span>
                   </Tooltip>
                 </div>
@@ -533,18 +532,10 @@ export function Plano({
 }
 
 export function LegendaPlano({ camadas }: { camadas: string[] }) {
+  // Só roadmap e camadas; prontidão, risco e interdependências explicam-se no tooltip.
   const item = "flex items-center gap-1.5"
   return (
     <div className={cx("flex flex-col gap-2", T.legenda)}>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-        <span className={cx("w-20", T.groupHead)}>Prontidão</span>
-        {(["ok", "parcial", "bloqueio", "sem", "na"] as Pront[]).map((s) => (
-          <span key={s} className={item}>
-            <ProntIcon st={s} size={16} /> {PRONT_NOME[s]}
-          </span>
-        ))}
-        <span className="opacity-80">Escopo definido · Prazo comprometido · Entregáveis mapeados e datados · Recursos: áreas viabilizadoras (+)</span>
-      </div>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
         <span className={cx("w-20", T.groupHead)}>Roadmap</span>
         {(Object.keys(COR_MARCO) as (keyof typeof COR_MARCO)[]).map((s) => (
@@ -574,27 +565,7 @@ export function LegendaPlano({ camadas }: { camadas: string[] }) {
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-        <span className={cx("w-20", T.groupHead)}>Risco</span>
-        {(["alto", "medio", "baixo"] as const).map((r) => (
-          <span key={r} className={item}>
-            <RiscoBars nivel={r} /> {RISCO_NOME[r]}
-          </span>
-        ))}
-        <span className={cx("ml-4 w-24", T.groupHead)}>Interdepend.</span>
-        <span className={item}>
-          <span className={T.chip}>01</span> comprovada por macroatividade
-        </span>
-        <span className={item}>
-          <span className={T.chipHip}>01</span> hipótese a validar
-        </span>
-        <span className={item}>
-          <span className={T.chipRisco}>01</span>
-          <span className={T.chipHipRisco}>01</span> em risco
-        </span>
-        <span className={item}>
-          <span className="flex size-3 items-center justify-center rounded-full bg-amber-500 text-[8px] font-bold text-white">!</span> não declarada
-        </span>
-        <span className={cx("ml-4 w-16", T.groupHead)}>Camadas</span>
+        <span className={cx("w-20", T.groupHead)}>Camadas</span>
         {camadas.map((c, k) => (
           <span key={c} className={item}>
             <span className={cx("size-3 rounded-sm", corCamada(k))} /> {c}
