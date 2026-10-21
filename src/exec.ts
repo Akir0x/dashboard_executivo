@@ -180,8 +180,11 @@ function parseVeredito(v: unknown): Veredito {
 }
 
 export const marcoSt = (i: Iniciativa): MarcoSt => {
+  // Pelo % de avanço: 100% concluído; < 100% com DataFim vencida = atrasado; 1–99% em andamento; 0% não iniciado.
+  // Sem % preenchido, usa Concluida e as datas.
   if (i.concl) return "conc"
   if (i.fim && i.fim < hoje) return "atr"
+  if (i.avanco !== null) return i.avanco > 0 ? "andamento" : "nao"
   if (i.ini && i.ini <= hoje) return "andamento"
   return "nao"
 }

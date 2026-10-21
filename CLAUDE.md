@@ -64,7 +64,7 @@ Onde cada tipo aparece: **detalhe da frente** → só Pendência e Atenção (de
 
 ## Regras calculadas (`src/exec.ts`)
 
-- **Status do marco:** Concluído (Concluida = Sim) · Atrasado (DataFim < hoje) · Em andamento (DataInicio ≤ hoje) · Não iniciado.
+- **Status do marco, pelo % de avanço (`Avanco`)** (a pedido): 100% = Concluído · abaixo de 100% com DataFim < hoje = Atrasado · 1% a 99% = Em andamento · 0% = Não iniciado. Com `Avanco` vazio, vale o antigo: Concluída (Concluida = Sim) · Atrasado (DataFim < hoje) · Em andamento (DataInicio ≤ hoje) · Não iniciado. Com `Avanco` preenchido, a coluna `Concluida` é ignorada. Excel em formato % (0,3; 1) é lido como 30%, 100%. "Hoje" é a data do computador de quem abre o painel.
 - **Sem cronograma:** frente sem nenhuma macroatividade com datas.
 - **Frente em risco** (sinais): sem cronograma, algum Bloqueio de prontidão (inclui áreas), risco Alto ou marco atrasado.
 - **Dependências entre frentes** = as declaradas na tbFrentes (RecebeDe/EntregaPara) **+** as que aparecem nas macroatividades (Predecessoras/Sucessoras da tbIniciativas ligando frentes diferentes). Cada uma tem três estados:

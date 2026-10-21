@@ -72,7 +72,8 @@ function parseAvanco(v: unknown): number | null {
   const s = String(v ?? "").trim().replace(",", ".").replace("%", "")
   if (!s || isNaN(Number(s))) return null
   const n = Number(s)
-  return Math.round(n <= 1 && !String(v).includes("%") && s.includes(".") ? n * 100 : n)
+  // "30%" ou "30" = 30%; fração do Excel (célula em %, vem 0,3 ou 1) = ×100.
+  return Math.max(0, Math.min(100, Math.round(n <= 1 && !String(v).includes("%") ? n * 100 : n)))
 }
 
 const listaIds = (v: unknown) =>
@@ -120,7 +121,11 @@ export function normalizar(linhas: Record<string, unknown>[]): Iniciativa[] {
       frente: String(campo(r, "frente") ?? "").trim() || "Sem frente",
       ini: parseData(campo(r, "ini")),
       fim: parseData(campo(r, "fim")),
-      concl: simNao(campo(r, "concl")),
+      // Com % de avanço preenchido, 100% = concluída; sem %, vale a coluna Concluida.
+      concl: (() => {
+        const av = parseAvanco(campo(r, "avanco"))
+        return av !== null ? av >= 100 : simNao(campo(r, "concl"))
+      })(),
       predRaw: listaIds(campo(r, "pred")),
       sucRaw: listaIds(campo(r, "suc")),
       preds: [],

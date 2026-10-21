@@ -242,6 +242,7 @@ textos = [
     ("Responsavel e Prazo (data ou texto como 'a definir'). Criticidade: Crítico, Alto, Médio ou Baixo (agrupa os cartões). Data: data da evolução. Fonte: opcional.", False),
     ("", False),
     ("Campos opcionais do detalhe: na tbFrentes, NomeCurto, Descricao, Area, Sponsor e os comentários de prontidão; na tbIniciativas, Responsavel e Avanco (%). Vazio = a tela só não mostra.", False),
+    ("Status da macroatividade pelo Avanco (%): 100% = Concluído; abaixo de 100% com DataFim vencida = Atrasado; 1% a 99% = Em andamento; 0% = Não iniciado. Com Avanco vazio, vale a coluna Concluida e as datas.", False),
     ("", False),
     ("Calculado pelo painel (não preencher): frentes sem cronograma, dependências em risco, frentes com pendência, bloqueios de prontidão, status dos marcos e carga de marcos por semana.", True),
     ("Dependência em risco: se comprovada, quando alguma predecessora está atrasada ou a sucessora começa antes de ela terminar; se hipótese, quando a frente que entrega está sem cronograma, tem Bloqueio, risco Alto ou marco atrasado.", False),
