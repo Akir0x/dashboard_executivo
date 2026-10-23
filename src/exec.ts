@@ -127,6 +127,7 @@ export interface Programa {
   deps: Dependencia[]
   porId: Map<string, Frente>
   pontos: Ponto[]
+  pontosLidos: number // linhas da tbPontos que chegaram (diagnóstico)
 }
 
 const norm = (k: unknown) =>
@@ -364,7 +365,7 @@ export function montar(
     })
   })
 
-  return { painel, frentes, iniciativas, deps, porId, pontos }
+  return { painel, frentes, iniciativas, deps, porId, pontos, pontosLidos: pontosRows.length }
 }
 
 export const depEntre = (prog: Programa, de: string, para: string) => prog.deps.find((d) => d.de === de && d.para === para)

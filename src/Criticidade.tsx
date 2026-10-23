@@ -539,6 +539,13 @@ export function Criticidade({
           </button>
         </span>
       </div>
+      {prog.pontos.length === 0 && (
+        <p className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 print:hidden">
+          {prog.pontosLidos === 0
+            ? "Nenhuma linha da tbPontos chegou ao painel. Confira se o fluxo tem a ação Listar_tbPontos e o replace do marcador PONTOS no Montar_HTML, e se o modelo é a versão nova do HTML."
+            : `${prog.pontosLidos} linha(s) da tbPontos chegaram, mas nenhuma tem Titulo ou Descricao preenchidos (confira os nomes das colunas).`}
+        </p>
+      )}
       {frente && (
         <p className="mt-2 text-sm text-gray-600 print:mt-1">
           Filtrado:{" "}
