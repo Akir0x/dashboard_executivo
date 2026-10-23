@@ -119,12 +119,7 @@ export default function App() {
       ativInter.size,
       "atividades com interdep. em risco",
     ),
-    kpi(
-      M.bloqueios,
-      frentes.reduce((s, f) => s + f.bloqueios, 0),
-      null,
-      "bloqueios de prontidão",
-    ),
+    // "bloqueios de prontidão" removido a pedido (coluna BloqueiosProntidao da tbPainel fica sem uso)
   ];
   const camadas = ordenarCamadas(frentes);
   const forum = T.eyebrow.includes("Barlow");
@@ -159,7 +154,7 @@ export default function App() {
               {(
                 [
                   ["plano", "Visão executiva"],
-                  ["mapa", "Mapa de interdependências"],
+                  ["mapa", "Mapa de interdependências (WIP)"],
                   ["crit", "Evoluções e roadblocks"],
                 ] as const
               ).map(([k, t]) => (

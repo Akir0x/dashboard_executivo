@@ -73,18 +73,18 @@ Onde cada tipo aparece: **detalhe da frente** → só Pendência e Atenção (de
   - **hipótese a validar**: declarada, mas sem macroatividade que a sustente → chip tracejado;
   - **não declarada**: aparece nas macroatividades, mas não na tbFrentes → chip com "!" laranja.
 - **Dependência em risco** (chip/seta vermelhos): se comprovada, quando alguma predecessora está atrasada ou a sucessora começa antes de ela terminar (conflito de datas); se hipótese, quando a frente que entrega está em risco.
-- **Indicadores do topo** (2º e 3º redefinidos a pedido; nomes das colunas da tbPainel mantidos):
+- **Indicadores do topo** (são 3; 2º e 3º redefinidos a pedido; nomes das colunas da tbPainel mantidos):
   1. **frentes sem cronograma** / total de frentes (manual: `FrentesSemCronograma`);
   2. **pontos críticos e de alto risco** = roadblocks da tbPontos (Risco, Atenção, Pendência) com Criticidade Crítico ou Alto / total de roadblocks (manual: coluna `DependenciasEmRisco`);
   3. **atividades com interdep. em risco** = macroatividades distintas (as duas pontas) em ligações entre frentes com predecessora atrasada ou conflito de datas / macroatividades distintas com alguma ligação entre frentes (manual: coluna `FrentesComPendencia`);
-  4. **bloqueios de prontidão** (manual: `BloqueiosProntidao`).
+  - O 4º indicador, **bloqueios de prontidão**, foi **removido** a pedido; a coluna `BloqueiosProntidao` da tbPainel fica sem uso (pode ficar na planilha).
 - **Carga de marcos por semana:** nº de macroatividades com DataFim na semana; pico em destaque.
 - **Setas "Ver dependências"** (plano): ligam macroatividades de frentes diferentes (Predecessoras/Sucessoras da tbIniciativas); vermelha tracejada se a predecessora está atrasada ou se a sucessora começa antes de ela terminar.
 
 ## Estrutura da tela
 
-1. Cabeçalho: pergunta (na tela de evoluções e roadblocks, o `TituloEvolucao`; no detalhe, "Detalhe da frente"); à direita, **navegação entre as telas no topo** (a pedido): "Visão executiva" · "Mapa de interdependências" · "Evoluções e roadblocks" (a atual destacada) e "Atualizado em…" (só com dados do fluxo; o selo "Dados de exemplo" foi removido a pedido). Botão "PDF" pequeno, fixo no canto inferior direito.
-2. Faixa única: "Leitura para dd/mm" + **escala de 3 estados do veredito em destaque** (o escolhido aceso; o texto grande do veredito foi removido a pedido) + 4 indicadores.
+1. Cabeçalho: pergunta (na tela de evoluções e roadblocks, o `TituloEvolucao`; no detalhe, "Detalhe da frente"); à direita, **navegação entre as telas no topo** (a pedido): "Visão executiva" · "Mapa de interdependências (WIP)" (marcado como em construção, a pedido) · "Evoluções e roadblocks" (a atual destacada) e "Atualizado em…" (só com dados do fluxo; o selo "Dados de exemplo" foi removido a pedido). Botão "PDF" pequeno, fixo no canto inferior direito.
+2. Faixa única: "Leitura para dd/mm" + **escala de 3 estados do veredito em destaque** (o escolhido aceso; o texto grande do veredito foi removido a pedido) + 3 indicadores.
 3. **Plano integrado** (visão executiva). Os controles ficam na barra do próprio bloco, **pequenos e discretos** (texto cinza, sem borda, para não competir com o conteúdo): ‹ Hoje › (semana a semana), intervalo S#–S#, "Ver dependências" e "Prontidão" (os botões do mapa e de evoluções foram para o topo da tela). Grade: frente (nº colorido pela camada, ✓ reporte, nome, líder, CP) · semanas agrupadas por mês (semana atual e semana do prazo destacadas, linha tracejada "Hoje"; frente **sem cronograma** = faixa tracejada "Sem cronograma" de hoje até o fim da janela, **sem data-alvo** a pedido) · Prontidão **nasce oculta** (a pedido): o botão "Prontidão" na barra do plano mostra as 4 colunas (Escopo, Prazo, Entregáveis, Recursos) e o − no cabeçalho "Prontidão" oculta de novo; Recursos tem o próprio + para as áreas · Risco (só as barras do nível; detalhe no tooltip) · Interdependências (← recebe de, → entrega para). Rodapé: carga de marcos por semana e totais OK/n. Passar o mouse numa frente apaga as não conectadas; **clicar no número/nome da frente abre a tela "Detalhe da frente"** (substituiu o antigo painel lateral).
 4. **Mapa de interdependências** (tela separada, sem a faixa de veredito e indicadores; botão "‹ Voltar à visão executiva"), em formato de **rede no tempo**:
    - faixa-resumo: total de dependências, comprovadas, hipóteses, não declaradas, em risco;
