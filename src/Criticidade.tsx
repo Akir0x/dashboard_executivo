@@ -1,13 +1,108 @@
 // Tela "Evoluções e roadblocks": alimentada pela tbPontos (preenchida à mão).
 // Evolução = evoluções; Risco e Atenção = roadblocks por criticidade.
 import React from "react";
-import { RiArrowLeftSLine, RiCheckboxCircleFill } from "@remixicon/react";
+import {
+  RiArrowDownSLine,
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiCheckboxCircleFill,
+} from "@remixicon/react";
+import { Tooltip } from "./components/Tooltip";
 import { cx } from "./utils/cx";
 import { hoje } from "./data";
 import { Criticidade as TCrit, CRIT_NOME, Ponto, Programa } from "./exec";
 import { ChipFrente } from "./Frente";
 import { T } from "./tema";
 import { CAIXA, ROLA } from "./caixa";
+
+// Itens resumidos: clicar expande/recolhe; passar o mouse mostra o detalhe completo.
+function useAbertos() {
+  const [abertos, setAbertos] = React.useState<Set<number>>(new Set());
+  const alterna = (n: number) =>
+    setAbertos((a) => {
+      const b = new Set(a);
+      if (b.has(n)) b.delete(n);
+      else b.add(n);
+      return b;
+    });
+  return [abertos, alterna] as const;
+}
+const parar = (e: React.MouseEvent) => e.stopPropagation();
+
+function DetalhePonto({ prog, p }: { prog: Programa; p: Ponto }) {
+  const linha = (rot: string, v: React.ReactNode) =>
+    v ? (
+      <p>
+        <span className="mr-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+          {rot}
+        </span>
+        {v}
+      </p>
+    ) : null;
+  const frentes = p.todas
+    ? "Todas"
+    : p.frentes
+        .map((id) => `${id} · ${prog.porId.get(id)?.nome ?? id}`)
+        .join("; ");
+  const prazo = p.prazo
+    ? dm(p.prazo) + (p.prazo < hoje ? " (vencido)" : "")
+    : p.prazoTxt || "a definir";
+  return (
+    <div className="space-y-1 text-xs leading-snug">
+      <p className="text-sm font-semibold">{p.titulo}</p>
+      <p className="text-gray-300">
+        {TIPO_CURTO[p.tipo]}
+        {p.criticidade && ` · ${CRIT_NOME[p.criticidade]}`}
+      </p>
+      {linha(p.tipo === "evolucao" ? "O que avançou" : "Hoje", p.descricao)}
+      {linha(
+        p.tipo === "evolucao" ? "Próximo passo" : "Decisão / plano",
+        p.acao,
+      )}
+      {linha(
+        "Dono",
+        p.responsavel || (p.tipo === "evolucao" ? "" : "a definir"),
+      )}
+      {p.tipo !== "evolucao" && linha("Prazo", prazo)}
+      {linha("Data", p.data ? dm(p.data) : "")}
+      {linha("Frentes", frentes)}
+      {linha("Fonte", p.fonte)}
+      <p className="pt-0.5 text-[10px] text-gray-400">
+        clique para expandir/recolher
+      </p>
+    </div>
+  );
+}
+function ComDetalhe({
+  prog,
+  p,
+  side = "top",
+  children,
+}: {
+  prog: Programa;
+  p: Ponto;
+  side?: "top" | "right" | "left" | "bottom";
+  children: React.ReactElement;
+}) {
+  return (
+    <Tooltip
+      asChild
+      side={side}
+      showArrow={false}
+      delayDuration={350}
+      className="max-w-96 print:hidden"
+      content={<DetalhePonto prog={prog} p={p} />}
+    >
+      {children}
+    </Tooltip>
+  );
+}
+const Seta = ({ aberto }: { aberto: boolean }) =>
+  aberto ? (
+    <RiArrowDownSLine className="size-4 shrink-0 text-gray-400" />
+  ) : (
+    <RiArrowRightSLine className="size-4 shrink-0 text-gray-400" />
+  );
 
 const dm = (d: Date | null) =>
   d
@@ -58,6 +153,7 @@ function Cartoes({
   prog: Programa;
   abrirFrente: (id: string) => void;
 }) {
+  const [abertos, alterna] = useAbertos();
   const evol = prog.pontos.filter((p) => p.tipo === "evolucao");
   const crit = prog.pontos
     .filter((p) => p.tipo !== "evolucao") // roadblocks = Risco, Atenção e Pendência
@@ -81,30 +177,48 @@ function Cartoes({
           </span>
         </div>
         {evol.length ? (
-          <div className={cx(ROLA, "grid grid-cols-1 content-start gap-3 p-3 md:grid-cols-2 xl:grid-cols-4")}>
+          <div
+            className={cx(
+              ROLA,
+              "grid grid-cols-1 content-start gap-3 p-3 md:grid-cols-2 xl:grid-cols-4",
+            )}
+          >
             {evol.map((p) => (
-              <article
-                key={p.n}
-                className="rounded-md border border-black/10 border-l-4 border-l-emerald-500 bg-white px-3 py-2"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
-                    <RiCheckboxCircleFill className="size-4 shrink-0 text-emerald-600" />
-                    {p.titulo}
-                  </p>
-                  <span className="flex shrink-0 items-center gap-1.5">
-                    <Frentes prog={prog} p={p} abrir={abrirFrente} />
-                    {(p.data || p.prazo) && (
-                      <span className="text-[11px] tabular-nums text-gray-500">
-                        {dm(p.data ?? p.prazo)}
-                      </span>
+              <ComDetalhe key={p.n} prog={prog} p={p}>
+                <article
+                  onClick={() => alterna(p.n)}
+                  className="cursor-pointer rounded-md border border-black/10 border-l-4 border-l-emerald-500 bg-white px-3 py-2 hover:shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                      <RiCheckboxCircleFill className="size-4 shrink-0 text-emerald-600" />
+                      {p.titulo}
+                    </p>
+                    <span
+                      className="flex shrink-0 items-center gap-1.5"
+                      onClick={parar}
+                    >
+                      <Frentes prog={prog} p={p} abrir={abrirFrente} />
+                      {(p.data || p.prazo) && (
+                        <span className="text-[11px] tabular-nums text-gray-500">
+                          {dm(p.data ?? p.prazo)}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <p
+                    className={cx(
+                      "mt-1 text-xs text-gray-600",
+                      !abertos.has(p.n) && "line-clamp-2",
                     )}
-                  </span>
-                </div>
-                <p className="mt-1 line-clamp-4 text-xs text-gray-600">
-                  {p.descricao}
-                </p>
-              </article>
+                  >
+                    {p.descricao}
+                  </p>
+                  {abertos.has(p.n) && p.acao && (
+                    <p className="mt-1 text-xs text-gray-700">{p.acao}</p>
+                  )}
+                </article>
+              </ComDetalhe>
             ))}
           </div>
         ) : (
@@ -137,89 +251,110 @@ function Cartoes({
           </span>
         </div>
         {crit.length ? (
-          <div className={cx(ROLA, "grid grid-cols-1 content-start gap-3 p-3 md:grid-cols-2 xl:grid-cols-4")}>
+          <div
+            className={cx(
+              ROLA,
+              "grid grid-cols-1 content-start gap-3 p-3 md:grid-cols-2 xl:grid-cols-4",
+            )}
+          >
             {crit.map((p) => {
               const vencido = p.prazo && p.prazo < hoje;
+              const aberto = abertos.has(p.n);
               return (
-                <article
-                  key={p.n}
-                  className={cx(
-                    "flex flex-col rounded-md border border-black/10 border-t-4 bg-white px-3 py-2",
-                    COR[p.criticidade].borda,
-                  )}
-                >
-                  {p.criticidade ? (
-                    <>
-                      <span
-                        className={cx(
-                          "self-start rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                          COR[p.criticidade].badge,
-                        )}
-                      >
-                        {nomeCrit(p)}
-                      </span>
-                      <span className="mt-1 self-start">
-                        <TipoTag p={p} />
-                      </span>
-                    </>
-                  ) : (
-                    <span className="self-start">
-                      <TipoTag p={p} />
-                    </span>
-                  )}
-                  <h4 className="mt-1.5 text-sm font-bold leading-snug text-gray-900">
-                    {p.titulo}
-                  </h4>
-                  {p.descricao && (
-                    <p className="mt-1 text-xs text-gray-600">
-                      <span className="mr-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">
-                        Hoje
-                      </span>
-                      {p.descricao}
-                    </p>
-                  )}
-                  {p.acao && (
-                    <p className="mt-1 text-xs text-gray-800">
-                      <span className="mr-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">
-                        Decidir
-                      </span>
-                      {p.acao}
-                    </p>
-                  )}
-                  <div className="mt-auto space-y-1 pt-2 text-[11px] text-gray-600">
-                    <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <span>
-                        Dono:{" "}
-                        <b className="text-gray-900">
-                          {p.responsavel || "a definir"}
-                        </b>
-                      </span>
-                      <span>
-                        Prazo:{" "}
-                        <b
+                <ComDetalhe key={p.n} prog={prog} p={p}>
+                  <article
+                    onClick={() => alterna(p.n)}
+                    className={cx(
+                      "flex cursor-pointer flex-col rounded-md border border-black/10 border-t-4 bg-white px-3 py-2 hover:shadow-sm",
+                      COR[p.criticidade].borda,
+                    )}
+                  >
+                    {p.criticidade ? (
+                      <>
+                        <span
                           className={cx(
-                            "tabular-nums",
-                            vencido || !p.prazo
-                              ? "text-red-600"
-                              : "text-gray-900",
+                            "self-start rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                            COR[p.criticidade].badge,
                           )}
                         >
-                          {p.prazo ? dm(p.prazo) : p.prazoTxt || "a definir"}
-                          {vencido && " (vencido)"}
-                        </b>
+                          {nomeCrit(p)}
+                        </span>
+                        <span className="mt-1 self-start">
+                          <TipoTag p={p} />
+                        </span>
+                      </>
+                    ) : (
+                      <span className="self-start">
+                        <TipoTag p={p} />
                       </span>
-                    </p>
-                    <p className="flex items-center justify-between gap-2">
-                      <span>Frentes:</span>
-                      <Frentes prog={prog} p={p} abrir={abrirFrente} />
-                    </p>
-                    {p.fonte && (
-                      <p className="text-[10px] text-gray-400">
-                        Fonte: {p.fonte}
+                    )}
+                    <h4 className="mt-1.5 text-sm font-bold leading-snug text-gray-900">
+                      {p.titulo}
+                    </h4>
+                    {p.descricao && (
+                      <p
+                        className={cx(
+                          "mt-1 text-xs text-gray-600",
+                          !aberto && "line-clamp-2",
+                        )}
+                      >
+                        <span className="mr-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                          Hoje
+                        </span>
+                        {p.descricao}
                       </p>
                     )}
-                  </div>
-                </article>
+                    {p.acao && (
+                      <p
+                        className={cx(
+                          "mt-1 text-xs text-gray-800",
+                          !aberto && "line-clamp-2",
+                        )}
+                      >
+                        <span className="mr-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                          Decidir
+                        </span>
+                        {p.acao}
+                      </p>
+                    )}
+                    <div className="mt-auto space-y-1 pt-2 text-[11px] text-gray-600">
+                      <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span>
+                          Dono:{" "}
+                          <b className="text-gray-900">
+                            {p.responsavel || "a definir"}
+                          </b>
+                        </span>
+                        <span>
+                          Prazo:{" "}
+                          <b
+                            className={cx(
+                              "tabular-nums",
+                              vencido || !p.prazo
+                                ? "text-red-600"
+                                : "text-gray-900",
+                            )}
+                          >
+                            {p.prazo ? dm(p.prazo) : p.prazoTxt || "a definir"}
+                            {vencido && " (vencido)"}
+                          </b>
+                        </span>
+                      </p>
+                      <p
+                        className="flex items-center justify-between gap-2"
+                        onClick={parar}
+                      >
+                        <span>Frentes:</span>
+                        <Frentes prog={prog} p={p} abrir={abrirFrente} />
+                      </p>
+                      {p.fonte && (
+                        <p className="text-[10px] text-gray-400">
+                          Fonte: {p.fonte}
+                        </p>
+                      )}
+                    </div>
+                  </article>
+                </ComDetalhe>
               );
             })}
           </div>
@@ -302,6 +437,7 @@ function ListaEvolucao({
   abrir: (id: string) => void;
   compacta?: boolean;
 }) {
+  const [abertos, alterna] = useAbertos();
   const evol = prog.pontos.filter((p) => p.tipo === "evolucao");
   if (!evol.length)
     return (
@@ -311,53 +447,76 @@ function ListaEvolucao({
     );
   return (
     <ul className="divide-y divide-black/5">
-      {evol.map((p) => (
-        <li
-          key={p.n}
-          className={cx("flex gap-3", compacta ? "px-4 py-2.5" : "px-6 py-3.5")}
-        >
-          <RiCheckboxCircleFill
-            className={cx(
-              "shrink-0 text-emerald-600",
-              compacta ? "mt-0.5 size-5" : "mt-0.5 size-6",
-            )}
-          />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-3">
-              <p
+      {evol.map((p) => {
+        const aberto = abertos.has(p.n);
+        return (
+          <ComDetalhe key={p.n} prog={prog} p={p} side="right">
+            <li
+              onClick={() => alterna(p.n)}
+              className={cx(
+                "flex cursor-pointer gap-2.5 hover:bg-black/[0.02]",
+                aberto && "bg-black/[0.02]",
+                compacta ? "px-4 py-2" : "px-6 py-3",
+              )}
+            >
+              <RiCheckboxCircleFill
                 className={cx(
-                  "font-semibold text-gray-900",
-                  compacta
-                    ? "text-[15px] leading-snug"
-                    : "text-lg leading-snug",
+                  "mt-0.5 shrink-0 text-emerald-600",
+                  compacta ? "size-4" : "size-5",
                 )}
-              >
-                {p.titulo}
-              </p>
-              <span className="flex shrink-0 items-center gap-2 pt-0.5">
-                <Frentes prog={prog} p={p} abrir={abrir} />
-                {!compacta && (p.data || p.prazo) && (
-                  <span className="text-xs tabular-nums text-gray-500">
-                    {dm(p.data ?? p.prazo)}
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-2">
+                  <p
+                    className={cx(
+                      "font-semibold leading-snug text-gray-900",
+                      compacta ? "text-[14px]" : "text-lg",
+                      !aberto && "truncate",
+                    )}
+                  >
+                    {p.titulo}
+                  </p>
+                  <span
+                    className="flex shrink-0 items-center gap-1"
+                    onClick={parar}
+                  >
+                    <Frentes prog={prog} p={p} abrir={abrir} />
                   </span>
+                </div>
+                {aberto ? (
+                  <div className="mt-1 space-y-0.5 text-[13px] leading-snug text-gray-700">
+                    {p.descricao && <p>{p.descricao}</p>}
+                    {p.acao && (
+                      <p>
+                        <span className="mr-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                          Próximo passo
+                        </span>
+                        {p.acao}
+                      </p>
+                    )}
+                    <p className="text-[11px] text-gray-500">
+                      {[
+                        p.data && `em ${dm(p.data)}`,
+                        p.responsavel,
+                        p.fonte && `fonte: ${p.fonte}`,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                ) : (
+                  p.descricao && (
+                    <p className="mt-0.5 truncate text-[12px] text-gray-500">
+                      {p.descricao}
+                    </p>
+                  )
                 )}
-              </span>
-            </div>
-            {p.descricao && (
-              <p
-                className={cx(
-                  "text-gray-600",
-                  compacta
-                    ? "mt-0.5 line-clamp-2 text-[13px] leading-snug"
-                    : "mt-1 text-[15px]",
-                )}
-              >
-                {p.descricao}
-              </p>
-            )}
-          </div>
-        </li>
-      ))}
+              </div>
+              <Seta aberto={aberto} />
+            </li>
+          </ComDetalhe>
+        );
+      })}
     </ul>
   );
 }
@@ -373,6 +532,7 @@ function TabelaDecisoes({
   abrir: (id: string) => void;
   grande?: boolean;
 }) {
+  const [abertos, alterna] = useAbertos();
   const th =
     "px-3 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-gray-500";
   const td = cx(
@@ -394,75 +554,111 @@ function TabelaDecisoes({
       <tbody className="divide-y divide-black/5">
         {pontos.map((p) => {
           const vencido = p.prazo && p.prazo < hoje;
+          const aberto = abertos.has(p.n);
           return (
-            <tr
-              key={p.n}
-              className={cx(p.criticidade === "critico" && "bg-red-50/60")}
-            >
-              <td className={cx(td, "relative pl-4")}>
-                <span
-                  className={cx(
-                    "absolute inset-y-0 left-0 w-1.5",
-                    FAIXA[p.criticidade],
-                  )}
-                />
-                {p.criticidade ? (
-                  <>
-                    <span
-                      className={cx(
-                        "inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                        COR[p.criticidade].badge,
-                      )}
-                    >
-                      {nomeCrit(p)}
-                    </span>
-                    <span className="mt-1 block">
-                      <TipoTag p={p} />
-                    </span>
-                  </>
-                ) : (
-                  <TipoTag p={p} />
-                )}
-              </td>
-              <td className={td}>
-                <p
-                  className={cx(
-                    "font-bold leading-snug text-gray-900",
-                    grande && "text-base",
-                  )}
-                >
-                  {p.titulo}
-                </p>
-                {p.descricao && (
-                  <p className="mt-0.5 leading-snug text-gray-600">
-                    {p.descricao}
-                  </p>
-                )}
-              </td>
-              <td className={cx(td, "font-medium leading-snug text-gray-900")}>
-                {p.acao || <span className="text-gray-400">a definir</span>}
-              </td>
-              <td className={cx(td, "text-gray-800")}>
-                {p.responsavel || (
-                  <span className="font-semibold text-red-600">a definir</span>
-                )}
-              </td>
-              <td
+            <ComDetalhe key={p.n} prog={prog} p={p}>
+              <tr
+                onClick={() => alterna(p.n)}
                 className={cx(
-                  td,
-                  "tabular-nums font-semibold",
-                  vencido || !p.prazo ? "text-red-600" : "text-gray-900",
+                  "cursor-pointer hover:bg-black/[0.03]",
+                  p.criticidade === "critico" && "bg-red-50/60",
                 )}
               >
-                {p.prazo ? dm(p.prazo) : p.prazoTxt || "a definir"}
-                {vencido && (
-                  <span className="block text-[11px] font-medium">vencido</span>
-                )}
-              </td>
-              <td className={td}>
-                <Frentes prog={prog} p={p} abrir={abrir} />
-              </td>
-            </tr>
+                <td className={cx(td, "relative pl-4")}>
+                  <span
+                    className={cx(
+                      "absolute inset-y-0 left-0 w-1.5",
+                      FAIXA[p.criticidade],
+                    )}
+                  />
+                  {p.criticidade ? (
+                    <>
+                      <span
+                        className={cx(
+                          "inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                          COR[p.criticidade].badge,
+                        )}
+                      >
+                        {nomeCrit(p)}
+                      </span>
+                      <span className="mt-1 block">
+                        <TipoTag p={p} />
+                      </span>
+                    </>
+                  ) : (
+                    <TipoTag p={p} />
+                  )}
+                </td>
+                <td className={td}>
+                  <p
+                    className={cx(
+                      "flex items-start gap-1 font-bold leading-snug text-gray-900",
+                      grande && "text-base",
+                    )}
+                  >
+                    <Seta aberto={aberto} />
+                    <span className={cx(!aberto && "line-clamp-1")}>
+                      {p.titulo}
+                    </span>
+                  </p>
+                  {p.descricao && (
+                    <p
+                      className={cx(
+                        "mt-0.5 pl-5 leading-snug text-gray-600",
+                        !aberto && "line-clamp-2",
+                      )}
+                    >
+                      {p.descricao}
+                    </p>
+                  )}
+                  {aberto && (p.fonte || p.data) && (
+                    <p className="mt-1 pl-5 text-[11px] text-gray-500">
+                      {[
+                        p.data && `registrado em ${dm(p.data)}`,
+                        p.fonte && `fonte: ${p.fonte}`,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  )}
+                </td>
+                <td
+                  className={cx(td, "font-medium leading-snug text-gray-900")}
+                >
+                  {p.acao ? (
+                    <span className={cx(!aberto && "line-clamp-2")}>
+                      {p.acao}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">a definir</span>
+                  )}
+                </td>
+                <td className={cx(td, "text-gray-800")}>
+                  {p.responsavel || (
+                    <span className="font-semibold text-red-600">
+                      a definir
+                    </span>
+                  )}
+                </td>
+                <td
+                  className={cx(
+                    td,
+                    "tabular-nums font-semibold",
+                    vencido || !p.prazo ? "text-red-600" : "text-gray-900",
+                  )}
+                >
+                  {p.prazo ? dm(p.prazo) : p.prazoTxt || "a definir"}
+                  {vencido && (
+                    <span className="block text-[11px] font-medium">
+                      vencido
+                    </span>
+                  )}
+                </td>
+                <td className={td} onClick={parar}>
+                  <Frentes prog={prog} p={p} abrir={abrir} />
+                </td>
+              </tr>
+            </ComDetalhe>
           );
         })}
       </tbody>
