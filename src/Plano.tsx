@@ -19,7 +19,6 @@ const RISCO = 60
 const INTER = 168
 const H_RODAPE = 50
 const SEMANAS_JANELA = 18
-const pad = (n: number) => String(n).padStart(2, "0")
 const dm = (d: Date) => `${d.getDate()}/${d.getMonth() + 1}`
 
 export interface Janela {
@@ -260,7 +259,7 @@ export function Plano({
             const x2 = f.fim ? colFim(f.fim) - 3 : 0
             const camIdx = camadas.indexOf(f.camada)
             const scIni = xHoje >= 0 ? xHoje : hoje < janela.inicio ? 0 : TW
-            const scFim = f.alvo && f.alvo > hoje ? colFim(f.alvo) : Math.min(TW, scIni + 260)
+            const scFim = TW // sem cronograma: faixa de hoje até o fim da janela (sem data-alvo, a pedido)
             // marcos agrupados por semana: um losango por semana, com todas as macroatividades no detalhe
             const porSemana = new Map<number, Iniciativa[]>()
             f.iniciativas.filter((i) => dentro(i.fim)).forEach((i) => {
@@ -317,7 +316,7 @@ export function Plano({
                         backgroundImage: "repeating-linear-gradient(135deg, rgba(220,38,38,.09) 0 6px, transparent 6px 12px)",
                       }}
                     >
-                      Sem cronograma{f.alvo ? ` · data-alvo ${pad(f.alvo.getMonth() + 1)}/${f.alvo.getFullYear()}` : ""}
+                      Sem cronograma
                     </div>
                   ) : (
                     x2 > 0 &&
@@ -328,7 +327,7 @@ export function Plano({
                       />
                     )
                   )}
-                  {f.alvo && dentro(f.alvo) && (
+                  {f.alvo && !f.semCrono && dentro(f.alvo) && (
                     <Tooltip asChild side="top" showArrow={false} content={`Data-alvo: ${fmt(f.alvo)}`}>
                       <span className="absolute cursor-default text-[11px] leading-none text-gray-800" style={{ left: centro(f.alvo) - 5, top: 3 }}>
                         ▼
