@@ -237,7 +237,7 @@ textos = [
     ("Frente sem nenhuma iniciativa aparece como 'Sem cronograma · data-alvo'.", False),
     ("", False),
     ("tbPontos (aba Pontos) — preenchida à mão", True),
-    ("Tipo: Evolução (bloco Evoluções); Risco, Atenção e Pendência viram roadblocks (com etiqueta do tipo). Pendência e Atenção também aparecem no detalhe da frente. Na tabela de roadblocks entram os de Criticidade Crítico ou Alto; os demais vão para o rodapé.", False),
+    ("Tipo: Evolução (bloco Evoluções); Risco, Atenção e Pendência viram roadblocks (com etiqueta do tipo). Pendência e Atenção também aparecem no detalhe da frente. Na tabela de roadblocks entram todos, ordenados por criticidade e prazo.", False),
     ("Titulo e Descricao: o que aconteceu / qual é o risco. Acao: plano de ação ou decisão necessária. Frente: IDs separados por ; ou 'Todas'.", False),
     ("Responsavel e Prazo (data ou texto como 'a definir'). Criticidade: Crítico, Alto, Médio ou Baixo (agrupa os cartões). Data: data da evolução. Fonte: opcional.", False),
     ("", False),

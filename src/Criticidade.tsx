@@ -498,10 +498,7 @@ function UmSlide({
   abrir: (id: string) => void;
 }) {
   const crit = ordenarCrit(prog.pontos);
-  const topo = crit.filter(
-    (p) => p.criticidade === "critico" || p.criticidade === "alto",
-  );
-  const resto = crit.filter((p) => !topo.includes(p));
+  // Sem corte por criticidade (a pedido): todos os roadblocks entram na tabela, ordenados por criticidade e prazo.
   return (
     <div className="mt-3 grid grid-cols-[380px_1fr] gap-3">
       <section className={cx("overflow-hidden", T.card)}>
@@ -518,18 +515,7 @@ function UmSlide({
             <Contadores crit={crit} />
           </span>
         </div>
-        <TabelaDecisoes prog={prog} pontos={topo} abrir={abrir} />
-        {resto.length > 0 && (
-          <p className="mt-auto border-t border-black/10 px-4 py-2 text-[13px] text-gray-600">
-            <b className="text-gray-800">
-              + {resto.length} roadblock{resto.length > 1 ? "s" : ""} de menor
-              criticidade:
-            </b>{" "}
-            {resto
-              .map((p) => `${p.titulo} (${TIPO_CURTO[p.tipo].toLowerCase()})`)
-              .join(" · ")}
-          </p>
-        )}
+        <TabelaDecisoes prog={prog} pontos={crit} abrir={abrir} />
       </section>
     </div>
   );
