@@ -20,7 +20,7 @@ Painel executivo em **um único arquivo HTML**, irmão do dashboard de acompanha
 
 ## Tabelas (arquivo `roadmap_executivo_exemplo.xlsx`)
 
-**`tbPainel`** (aba Painel, 1 linha, preenchida pelo PMO): `Pergunta`, `Veredito`, `TituloEvolucao` (título da tela "Evoluções e roadblocks"; vazio = esse texto), `PrazoFinal` (só usado para destacar a semana do prazo em vermelho) e os 4 indicadores opcionais `FrentesSemCronograma`, `DependenciasEmRisco`, `FrentesComPendencia`, `BloqueiosProntidao`. **Vazio = o painel calcula; preenchido ("2/8" ou "11") = o valor digitado aparece no topo.** Se só o numerador for digitado, o denominador continua calculado. As células ficam em formato Texto para o Excel não converter "2/8" em data.
+**`tbPainel`** (aba Painel, 1 linha, preenchida pelo PMO): `Pergunta`, `Veredito`, `TituloEvolucao` (título da tela "Evoluções e roadblocks"; vazio = esse texto), `PrazoFinal` (só usado para destacar a semana do prazo em vermelho) e os 4 indicadores opcionais `FrentesSemCronograma`, `DependenciasEmRisco` (hoje alimenta "pontos críticos e de alto risco"), `FrentesComPendencia` (hoje alimenta "atividades com interdep. em risco"), `BloqueiosProntidao`. **Vazio = o painel calcula; preenchido ("2/8" ou "11") = o valor digitado aparece no topo.** Se só o numerador for digitado, o denominador continua calculado. As células ficam em formato Texto para o Excel não converter "2/8" em data.
 
 **`tbFrentes`** (aba Frentes, 1 linha por frente):
 
@@ -72,7 +72,11 @@ Onde cada tipo aparece: **detalhe da frente** → só Pendência e Atenção (de
   - **hipótese a validar**: declarada, mas sem macroatividade que a sustente → chip tracejado;
   - **não declarada**: aparece nas macroatividades, mas não na tbFrentes → chip com "!" laranja.
 - **Dependência em risco** (chip/seta vermelhos): se comprovada, quando alguma predecessora está atrasada ou a sucessora começa antes de ela terminar (conflito de datas); se hipótese, quando a frente que entrega está em risco.
-- **Indicadores do topo:** frentes sem cronograma / total; dependências em risco / total (incluindo as não declaradas); frentes com pendência de prontidão / total; nº de bloqueios de prontidão.
+- **Indicadores do topo** (2º e 3º redefinidos a pedido; nomes das colunas da tbPainel mantidos):
+  1. **frentes sem cronograma** / total de frentes (manual: `FrentesSemCronograma`);
+  2. **pontos críticos e de alto risco** = roadblocks da tbPontos (Risco, Atenção, Pendência) com Criticidade Crítico ou Alto / total de roadblocks (manual: coluna `DependenciasEmRisco`);
+  3. **atividades com interdep. em risco** = macroatividades distintas (as duas pontas) em ligações entre frentes com predecessora atrasada ou conflito de datas / macroatividades distintas com alguma ligação entre frentes (manual: coluna `FrentesComPendencia`);
+  4. **bloqueios de prontidão** (manual: `BloqueiosProntidao`).
 - **Carga de marcos por semana:** nº de macroatividades com DataFim na semana; pico em destaque.
 - **Setas "Ver dependências"** (plano): ligam macroatividades de frentes diferentes (Predecessoras/Sucessoras da tbIniciativas); vermelha tracejada se a predecessora está atrasada ou se a sucessora começa antes de ela terminar.
 

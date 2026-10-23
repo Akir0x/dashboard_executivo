@@ -85,6 +85,15 @@ export default function App() {
     manual: !!m,
   });
   const M = painel.manual;
+  const roadblocks = prog.pontos.filter((p) => p.tipo !== "evolucao");
+  const ativInter = new Set<string>();
+  const ativRisco = new Set<string>();
+  deps.forEach((d) =>
+    d.macros.forEach((m) => {
+      ativInter.add(m.pre.id).add(m.suc.id);
+      if (m.atrasada || m.conflito) ativRisco.add(m.pre.id).add(m.suc.id);
+    }),
+  );
   const kpis = [
     kpi(
       M.semCrono,
@@ -92,17 +101,22 @@ export default function App() {
       N,
       "frentes sem cronograma",
     ),
+    // 2º: roadblocks (tbPontos) Crítico ou Alto / total de roadblocks. Valor manual: coluna DependenciasEmRisco (nome mantido).
     kpi(
       M.depsRisco,
-      deps.filter((d) => d.risco).length,
-      deps.length,
-      "dependências em risco",
+      roadblocks.filter(
+        (p) => p.criticidade === "critico" || p.criticidade === "alto",
+      ).length,
+      roadblocks.length,
+      "pontos críticos e de alto risco",
     ),
+    // 3º: macroatividades em ligações entre frentes em risco (predecessora atrasada ou conflito de datas) / macroatividades com interdependência.
+    // Valor manual: coluna FrentesComPendencia (nome mantido).
     kpi(
       M.pendencia,
-      frentes.filter((f) => f.pendente).length,
-      N,
-      "frentes com pendência de prontidão",
+      ativRisco.size,
+      ativInter.size,
+      "atividades com interdep. em risco",
     ),
     kpi(
       M.bloqueios,
