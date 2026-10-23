@@ -16,8 +16,8 @@ import { T } from "./tema";
 import { CAIXA, ROLA } from "./caixa";
 
 // Itens resumidos: clicar expande/recolhe; passar o mouse mostra o detalhe completo.
-function useAbertos() {
-  const [abertos, setAbertos] = React.useState<Set<number>>(new Set());
+function useAbertos(iniciais: number[] = []) {
+  const [abertos, setAbertos] = React.useState<Set<number>>(() => new Set(iniciais));
   const alterna = (n: number) =>
     setAbertos((a) => {
       const b = new Set(a);
@@ -437,8 +437,9 @@ function ListaEvolucao({
   abrir: (id: string) => void;
   compacta?: boolean;
 }) {
-  const [abertos, alterna] = useAbertos();
   const evol = prog.pontos.filter((p) => p.tipo === "evolucao");
+  // As 3 primeiras evoluções começam abertas; as demais resumidas.
+  const [abertos, alterna] = useAbertos(evol.slice(0, 3).map((p) => p.n));
   if (!evol.length)
     return (
       <p className="px-4 py-3 text-sm text-gray-500">
@@ -705,7 +706,7 @@ function UmSlide({
           <h3 className={T.painelTitulo}>Evoluções</h3>
         </div>
         <div className={ROLA}>
-          <ListaEvolucao prog={prog} abrir={abrir} compacta />
+          <ListaEvolucao key={prog.pontos.filter((p) => p.tipo === "evolucao").map((p) => p.n).join(",")} prog={prog} abrir={abrir} compacta />
         </div>
       </section>
       <section className={cx(CAIXA, "max-h-full print:mt-3", T.card)}>
