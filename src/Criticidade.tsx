@@ -162,7 +162,9 @@ function Cartoes({
                       </span>
                     </>
                   ) : (
-                    <span className="self-start"><TipoTag p={p} /></span>
+                    <span className="self-start">
+                      <TipoTag p={p} />
+                    </span>
                   )}
                   <h4 className="mt-1.5 text-sm font-bold leading-snug text-gray-900">
                     {p.titulo}
@@ -533,14 +535,26 @@ export function Criticidade({
   // Principal: um slide (evolução em lista + tabela de decisões). A versão original em cartões fica num botão.
   const [cartoes, setCartoes] = React.useState(false);
   const [frente, setFrente] = React.useState(""); // "" = todas; pontos marcados "Todas" aparecem em qualquer filtro
-  const progF: Programa = frente
-    ? {
-        ...prog,
-        pontos: prog.pontos.filter(
-          (p) => p.todas || p.frentes.includes(frente),
-        ),
-      }
-    : prog;
+  const [dono, setDono] = React.useState(""); // "" = todos; filtro pelo nome do responsável (coluna Responsavel)
+  const donos = [
+    ...new Set(prog.pontos.map((p) => p.responsavel).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  const progF: Programa =
+    frente || dono
+      ? {
+          ...prog,
+          pontos: prog.pontos.filter(
+            (p) =>
+              (!frente || p.todas || p.frentes.includes(frente)) &&
+              (!dono || p.responsavel === dono),
+          ),
+        }
+      : prog;
+  const sel = (ativo: string) =>
+    cx(
+      "rounded border bg-white px-2 py-1 text-sm font-medium text-gray-800",
+      ativo ? "border-gray-800" : "border-gray-300",
+    );
   return (
     <div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 print:hidden">
@@ -570,6 +584,21 @@ export function Criticidade({
               ))}
             </select>
           </label>
+          <label className="flex items-center gap-1.5 text-xs text-gray-500">
+            Dono
+            <select
+              value={dono}
+              onChange={(e) => setDono(e.target.value)}
+              className={sel(dono)}
+            >
+              <option value="">Todos</option>
+              {donos.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             type="button"
             onClick={() => setCartoes(!cartoes)}
@@ -586,13 +615,23 @@ export function Criticidade({
             : `${prog.pontosLidos} linha(s) da tbPontos chegaram, mas nenhuma tem Titulo ou Descricao preenchidos (confira os nomes das colunas).`}
         </p>
       )}
-      {frente && (
+      {(frente || dono) && (
         <p className="mt-2 text-sm text-gray-600 print:mt-1">
           Filtrado:{" "}
-          <b className="text-gray-900">
-            {prog.porId.get(frente)?.nome ?? frente}
-          </b>{" "}
-          (inclui os itens marcados como Todas)
+          {frente && (
+            <>
+              <b className="text-gray-900">
+                {prog.porId.get(frente)?.nome ?? frente}
+              </b>{" "}
+              (inclui os itens marcados como Todas)
+            </>
+          )}
+          {frente && dono && " · "}
+          {dono && (
+            <>
+              dono <b className="text-gray-900">{dono}</b>
+            </>
+          )}
         </p>
       )}
       {cartoes ? (
