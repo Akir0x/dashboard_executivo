@@ -161,15 +161,20 @@ export default function App() {
                 <button
                   key={k}
                   type="button"
+                  // Mapa indisponível por enquanto (WIP): botão visível, mas desativado.
+                  disabled={k === "mapa"}
+                  title={k === "mapa" ? "Em construção — indisponível por enquanto" : undefined}
                   onClick={() => {
                     setAba(k);
                     window.scrollTo(0, 0);
                   }}
                   className={cx(
                     "rounded-full px-3 py-1 text-sm font-semibold",
-                    aba === k
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-600 hover:bg-gray-900/5 hover:text-gray-900",
+                    k === "mapa"
+                      ? "cursor-not-allowed text-gray-400"
+                      : aba === k
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-600 hover:bg-gray-900/5 hover:text-gray-900",
                   )}
                   aria-current={aba === k ? "page" : undefined}
                 >
