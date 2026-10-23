@@ -153,7 +153,6 @@ function Cartoes({
   prog: Programa;
   abrirFrente: (id: string) => void;
 }) {
-  const [abertos, alterna] = useAbertos();
   const evol = prog.pontos.filter((p) => p.tipo === "evolucao");
   const crit = prog.pontos
     .filter((p) => p.tipo !== "evolucao") // roadblocks = Risco, Atenção e Pendência
@@ -162,6 +161,8 @@ function Cartoes({
         ORDEM.indexOf(a.criticidade) - ORDEM.indexOf(b.criticidade) ||
         (a.prazo?.getTime() ?? Infinity) - (b.prazo?.getTime() ?? Infinity),
     );
+  // Como na tabela: as 3 primeiras evoluções e os 3 primeiros roadblocks começam abertos.
+  const [abertos, alterna] = useAbertos([...evol.slice(0, 3), ...crit.slice(0, 3)].map((p) => p.n));
   const contagem = ORDEM.filter((c) => c)
     .map((c) => ({ c, n: crit.filter((p) => p.criticidade === c).length }))
     .filter((x) => x.n);
@@ -533,7 +534,8 @@ function TabelaDecisoes({
   abrir: (id: string) => void;
   grande?: boolean;
 }) {
-  const [abertos, alterna] = useAbertos();
+  // Os 3 primeiros roadblocks (os mais críticos) começam abertos.
+  const [abertos, alterna] = useAbertos(pontos.slice(0, 3).map((p) => p.n));
   const th =
     "px-3 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-gray-500";
   const td = cx(
@@ -718,7 +720,7 @@ function UmSlide({
           </span>
         </div>
         <div className={ROLA}>
-          <TabelaDecisoes prog={prog} pontos={crit} abrir={abrir} />
+          <TabelaDecisoes key={crit.map((p) => p.n).join(",")} prog={prog} pontos={crit} abrir={abrir} />
         </div>
       </section>
     </div>
@@ -837,7 +839,7 @@ export function Criticidade({
         </p>
       )}
       {cartoes ? (
-        <Cartoes prog={progF} abrirFrente={abrirFrente} />
+        <Cartoes key={progF.pontos.map((p) => p.n).join(",")} prog={progF} abrirFrente={abrirFrente} />
       ) : (
         <UmSlide prog={progF} abrir={abrirFrente} />
       )}
