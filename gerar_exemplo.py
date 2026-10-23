@@ -141,7 +141,7 @@ PONTOS = [
     ("Risco", "Calendários motor × cobrança", "Cobrança homologa em dezembro e depende da base no ambiente de dados.", "Alinhar arquitetura, data de apuração e agenda de testes integrados.", "02; 05", "Carlos Mendes", D(2026, 10, 30), "Médio", None, ""),
     ("Atenção", "Qualidade de 2 bases secundárias", "Aderência caiu para 50–60%; tratado como ponto de atenção, não bloqueio.", "Investigar a mudança de regra com Engenharia e Produtos.", "01", "Ana Ribeiro", D(2026, 10, 23), "Médio", None, ""),
     ("Pendência", "Consolidar bases de investimento", "Consolidação exige esforço técnico elevado, sem prazo de refatoração.", "Engenharia estrutura a visão consolidada e o monitoramento de carga.", "01", "Engenharia", D(2026, 11, 26), "", None, ""),
-    ("Pendência", "Regra de elegibilidade não fechada", "Regra pode exigir débito técnico se não for aprovada antes da rotina.", "Aprovar a regra antes da rotina de elegibilidade.", "01; 02", "Ana Ribeiro", "a definir", "", None, ""),
+    ("Pendência", "Regra de elegibilidade não fechada", "Regra pode exigir débito técnico se não for aprovada antes da rotina.", "Aprovar a regra antes da rotina de elegibilidade.", "01; 02", "Ana Ribeiro", "a definir", "Alto", None, ""),
     ("Pendência", "Escopo mínimo do atendente", "Escopo segue em aberto e a capacidade da equipe não foi estimada.", "Fechar o mínimo e priorizar a capacidade.", "07", "Diego Martins", D(2026, 10, 19), "", None, ""),
 ]
 
@@ -237,7 +237,7 @@ textos = [
     ("Frente sem nenhuma iniciativa aparece como 'Sem cronograma · data-alvo'.", False),
     ("", False),
     ("tbPontos (aba Pontos) — preenchida à mão", True),
-    ("Tipo: Evolução (bloco Evoluções), Pendência ou Atenção (aparecem no detalhe da frente e Atenção também nos roadblocks) ou Risco (roadblocks).", False),
+    ("Tipo: Evolução (bloco Evoluções); Risco, Atenção e Pendência viram roadblocks (com etiqueta do tipo). Pendência e Atenção também aparecem no detalhe da frente. Na tabela de roadblocks entram os de Criticidade Crítico ou Alto; os demais vão para o rodapé.", False),
     ("Titulo e Descricao: o que aconteceu / qual é o risco. Acao: plano de ação ou decisão necessária. Frente: IDs separados por ; ou 'Todas'.", False),
     ("Responsavel e Prazo (data ou texto como 'a definir'). Criticidade: Crítico, Alto, Médio ou Baixo (agrupa os cartões). Data: data da evolução. Fonte: opcional.", False),
     ("", False),

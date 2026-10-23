@@ -59,7 +59,7 @@ function Cartoes({
 }) {
   const evol = prog.pontos.filter((p) => p.tipo === "evolucao");
   const crit = prog.pontos
-    .filter((p) => p.tipo === "risco" || p.tipo === "atencao")
+    .filter((p) => p.tipo !== "evolucao") // roadblocks = Risco, Atenção e Pendência
     .sort(
       (a, b) =>
         ORDEM.indexOf(a.criticidade) - ORDEM.indexOf(b.criticidade) ||
@@ -147,18 +147,23 @@ function Cartoes({
                     COR[p.criticidade].borda,
                   )}
                 >
-                  <span
-                    className={cx(
-                      "self-start rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                      COR[p.criticidade].badge,
-                    )}
-                  >
-                    {p.criticidade
-                      ? CRIT_NOME[p.criticidade]
-                      : p.tipo === "atencao"
-                        ? "Atenção"
-                        : "Risco"}
-                  </span>
+                  {p.criticidade ? (
+                    <>
+                      <span
+                        className={cx(
+                          "self-start rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                          COR[p.criticidade].badge,
+                        )}
+                      >
+                        {nomeCrit(p)}
+                      </span>
+                      <span className="mt-1 self-start">
+                        <TipoTag p={p} />
+                      </span>
+                    </>
+                  ) : (
+                    <span className="self-start"><TipoTag p={p} /></span>
+                  )}
                   <h4 className="mt-1.5 text-sm font-bold leading-snug text-gray-900">
                     {p.titulo}
                   </h4>
@@ -229,7 +234,7 @@ function Cartoes({
 
 const ordenarCrit = (ps: Ponto[]) =>
   ps
-    .filter((p) => p.tipo === "risco" || p.tipo === "atencao")
+    .filter((p) => p.tipo !== "evolucao") // roadblocks = Risco, Atenção e Pendência
     .sort(
       (a, b) =>
         ORDEM.indexOf(a.criticidade) - ORDEM.indexOf(b.criticidade) ||
@@ -244,11 +249,46 @@ const FAIXA: Record<TCrit, string> = {
   "": "bg-gray-300",
 };
 const nomeCrit = (p: Ponto) =>
-  p.criticidade
-    ? CRIT_NOME[p.criticidade]
-    : p.tipo === "atencao"
-      ? "Atenção"
-      : "Risco";
+  p.criticidade ? CRIT_NOME[p.criticidade] : TIPO_CURTO[p.tipo];
+
+// Tipo do roadblock: etiqueta com contorno, cor própria por tipo (Pendência em azul-ardósia, tracejada).
+const TIPO_CURTO: Record<Ponto["tipo"], string> = {
+  evolucao: "Evolução",
+  risco: "Risco",
+  atencao: "Atenção",
+  pendencia: "Pendência",
+};
+const TIPO_COR: Record<Ponto["tipo"], string> = {
+  evolucao: "border-emerald-500 text-emerald-700",
+  risco: "border-red-500 text-red-700",
+  atencao: "border-amber-500 text-amber-700",
+  pendencia: "border-dashed border-sky-600 text-sky-700",
+};
+export function TipoTag({ p }: { p: Ponto }) {
+  return (
+    <span
+      className={cx(
+        "inline-block rounded border bg-white px-1.5 py-px text-[10px] font-bold uppercase tracking-wide",
+        TIPO_COR[p.tipo],
+      )}
+    >
+      {TIPO_CURTO[p.tipo]}
+    </span>
+  );
+}
+function ContTipos({ crit }: { crit: Ponto[] }) {
+  const n = (t: Ponto["tipo"]) => crit.filter((p) => p.tipo === t).length;
+  const itens = [
+    [n("risco"), "risco", "riscos"],
+    [n("atencao"), "atenção", "atenções"],
+    [n("pendencia"), "pendência", "pendências"],
+  ].filter((x) => x[0]) as [number, string, string][];
+  return (
+    <span className="text-[11px] text-gray-500">
+      {itens.map(([q, um, v]) => `${q} ${q > 1 ? v : um}`).join(" · ")}
+    </span>
+  );
+}
 
 function ListaEvolucao({
   prog,
@@ -340,9 +380,9 @@ function TabelaDecisoes({
     <table className="w-full border-collapse">
       <thead className="border-b border-black/10 bg-black/[0.02]">
         <tr>
-          <th className={cx(th, "w-24")}>Nível</th>
+          <th className={cx(th, "w-24")}>Nível · tipo</th>
           <th className={th}>Ponto · situação hoje</th>
-          <th className={th}>Decisão pedida</th>
+          <th className={th}>Decisão / plano de ação</th>
           <th className={cx(th, "w-36")}>Dono</th>
           <th className={cx(th, "w-24")}>Prazo</th>
           <th className={cx(th, "w-28")}>Frentes</th>
@@ -363,14 +403,23 @@ function TabelaDecisoes({
                     FAIXA[p.criticidade],
                   )}
                 />
-                <span
-                  className={cx(
-                    "inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                    COR[p.criticidade].badge,
-                  )}
-                >
-                  {nomeCrit(p)}
-                </span>
+                {p.criticidade ? (
+                  <>
+                    <span
+                      className={cx(
+                        "inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                        COR[p.criticidade].badge,
+                      )}
+                    >
+                      {nomeCrit(p)}
+                    </span>
+                    <span className="mt-1 block">
+                      <TipoTag p={p} />
+                    </span>
+                  </>
+                ) : (
+                  <TipoTag p={p} />
+                )}
               </td>
               <td className={td}>
                 <p
@@ -464,7 +513,10 @@ function UmSlide({
       <section className={cx("flex flex-col overflow-hidden", T.card)}>
         <div className="flex items-center justify-between gap-3 border-b border-black/10 px-4 py-2.5">
           <h3 className={T.painelTitulo}>Roadblocks · decisões necessárias</h3>
-          <Contadores crit={crit} />
+          <span className="flex items-center gap-3">
+            <ContTipos crit={crit} />
+            <Contadores crit={crit} />
+          </span>
         </div>
         <TabelaDecisoes prog={prog} pontos={topo} abrir={abrir} />
         {resto.length > 0 && (
@@ -473,7 +525,9 @@ function UmSlide({
               + {resto.length} roadblock{resto.length > 1 ? "s" : ""} de menor
               criticidade:
             </b>{" "}
-            {resto.map((p) => p.titulo).join(" · ")}
+            {resto
+              .map((p) => `${p.titulo} (${TIPO_CURTO[p.tipo].toLowerCase()})`)
+              .join(" · ")}
           </p>
         )}
       </section>
