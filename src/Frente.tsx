@@ -8,6 +8,7 @@ import { Dependencia, Frente as TFrente, MARCO_NOME, marcoSt, MarcoSt, ordenarCa
 import { COR_MARCO, Diamante, ProntIcon } from "./icones"
 import { Janela } from "./Plano"
 import { corCamada, T } from "./tema"
+import { CAIXA, ROLA, TELA } from "./caixa"
 
 const dm = (d: Date | null) => (d ? `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}` : "—")
 const semanas = (a: Date, b: Date) => Math.round((b.getTime() - a.getTime()) / (7 * 864e5))
@@ -75,12 +76,12 @@ function MiniLinha({ i, janela, prazo }: { i: Iniciativa; janela: Janela; prazo:
 
 function Bloco({ titulo, extra, children, className }: { titulo: string; extra?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className={cx("overflow-hidden", T.card, className)}>
-      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-black/10 px-4 py-2">
+    <section className={cx(CAIXA, T.card, className)}>
+      <div className="flex shrink-0 flex-wrap items-baseline justify-between gap-2 border-b border-black/10 px-4 py-2">
         <h3 className={T.painelTitulo}>{titulo}</h3>
         {extra && <span className="text-[11px] text-gray-500">{extra}</span>}
       </div>
-      {children}
+      <div className={ROLA}>{children}</div>
     </section>
   )
 }
@@ -161,9 +162,9 @@ export function DetalheFrente({
   ]
 
   return (
-    <div className="mt-3 space-y-3">
+    <div className={TELA}>
       {/* navegação entre frentes */}
-      <div className="flex flex-wrap items-center gap-1.5 print:hidden">
+      <div className="flex shrink-0 flex-wrap items-center gap-1.5 print:hidden">
         <button type="button" className={cx("mr-2 flex items-center gap-1", T.btn)} onClick={onVoltar}>
           <RiArrowLeftSLine className="size-4" /> Voltar à visão executiva
         </button>
@@ -191,7 +192,7 @@ export function DetalheFrente({
       </div>
 
       {/* cabeçalho da frente */}
-      <section className={cx("flex flex-wrap items-start justify-between gap-4 border-l-4 px-5 py-3", T.card, f.cp ? "border-l-red-500" : "border-l-gray-300")}>
+      <section className={cx("flex shrink-0 flex-wrap items-start justify-between gap-4 border-l-4 px-5 py-3", T.card, f.cp ? "border-l-red-500" : "border-l-gray-300")}>
         <div className="flex items-start gap-3">
           <span className={cx("relative flex size-11 shrink-0 items-center justify-center text-lg", T.numBadge, corCamada(camadas.indexOf(f.camada)))}>
             {f.id}
@@ -223,8 +224,8 @@ export function DetalheFrente({
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="space-y-3">
+      <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-3 xl:grid-cols-[minmax(0,1fr)_380px] print:block">
+        <div className="flex min-h-0 flex-col gap-3 print:block print:space-y-3">
           {/* macroatividades */}
           <Bloco
             titulo="Macroatividades"
@@ -314,7 +315,7 @@ export function DetalheFrente({
           </Bloco>
         </div>
 
-        <div className="space-y-3">
+        <div className="flex min-h-0 flex-col gap-3 print:mt-3 print:block print:space-y-3">
           {/* prontidão */}
           <Bloco titulo="Prontidão da frente" extra={f.reporte ? `reporte de ${dm(f.reporte)}` : undefined}>
             <ul className="divide-y divide-black/[0.05]">

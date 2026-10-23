@@ -4,7 +4,7 @@ import { Tooltip } from "./components/Tooltip"
 import { cx } from "./utils/cx"
 import { addDias, fmt, hoje, Iniciativa } from "./data"
 import { ChipDep } from "./ChipDep"
-import { conectadas, depEntre, Frente, MARCO_NOME, marcoSt, ordenarCamadas, Pront, PRONT_NOME, Programa, RISCO_NOME, segunda, semanasEntre } from "./exec"
+import { conectadas, depEntre, Dependencia, Frente, MARCO_NOME, marcoSt, ordenarCamadas, Pront, PRONT_NOME, Programa, RISCO_NOME, segunda, semanasEntre } from "./exec"
 import { COR_MARCO, Diamante, ProntIcon, RiscoBars } from "./icones"
 import { corCamada, T } from "./tema"
 
@@ -155,10 +155,10 @@ export function Plano({
   const H = frentes.length * ROW
 
   return (
-    <div ref={ref} className="overflow-x-auto">
+    <div ref={ref} className="min-h-0 flex-1 overflow-auto print:overflow-visible">
       <div style={{ width: W }} className="relative">
         {/* ---------- Cabeçalho ---------- */}
-        <div className="flex">
+        <div className="sticky top-0 z-20 flex bg-white print:static">
           <div style={{ width: LEFT, height: H_MES + H_SEM }} className={cx("flex items-end px-3 pb-2", T.leftHead)}>
             Frente · liderança
           </div>
@@ -432,14 +432,8 @@ export function Plano({
 
                 {/* interdependências */}
                 <div style={{ width: INTER }} className="flex flex-col justify-center gap-1 px-2 text-[11px] text-gray-500">
-                  <span className="flex flex-wrap items-center gap-1">
-                    <span className="w-3">←</span>
-                    {f.recebe.length ? f.recebe.map((id) => <ChipDep key={id} prog={prog} d={depEntre(prog, id, f.id)!} mostrar={id} />) : <span className="opacity-50">—</span>}
-                  </span>
-                  <span className="flex flex-wrap items-center gap-1">
-                    <span className="w-3">→</span>
-                    {f.entrega.length ? f.entrega.map((id) => <ChipDep key={id} prog={prog} d={depEntre(prog, f.id, id)!} mostrar={id} />) : <span className="opacity-50">—</span>}
-                  </span>
+                  <ChipsLinha prog={prog} seta="←" ids={f.recebe} dep={(id) => depEntre(prog, id, f.id)!} />
+                  <ChipsLinha prog={prog} seta="→" ids={f.entrega} dep={(id) => depEntre(prog, f.id, id)!} />
                 </div>
               </div>
             )
@@ -527,6 +521,34 @@ export function Plano({
         </div>
       </div>
     </div>
+  )
+}
+
+// Uma linha só de chips por sentido (a linha da frente não cresce): os em risco primeiro; o que não cabe vira "+n" com a lista no tooltip.
+const MAX_CHIPS = 5
+function ChipsLinha({ prog, seta, ids, dep }: { prog: Programa; seta: string; ids: string[]; dep: (id: string) => Dependencia }) {
+  if (!ids.length)
+    return (
+      <span className="flex items-center gap-1">
+        <span className="w-3">{seta}</span>
+        <span className="opacity-50">—</span>
+      </span>
+    )
+  const ord = [...ids].sort((a, b) => Number(!!dep(b).risco) - Number(!!dep(a).risco))
+  const vis = ord.length > MAX_CHIPS ? ord.slice(0, MAX_CHIPS - 1) : ord
+  const resto = ord.slice(vis.length)
+  return (
+    <span className="flex flex-nowrap items-center gap-1">
+      <span className="w-3 shrink-0">{seta}</span>
+      {vis.map((id) => (
+        <ChipDep key={id} prog={prog} d={dep(id)} mostrar={id} />
+      ))}
+      {resto.length > 0 && (
+        <Tooltip asChild side="left" showArrow={false} content={resto.map((id) => `${id} · ${prog.porId.get(id)?.nome ?? id}`).join("\n")} className="whitespace-pre-line">
+          <span className="cursor-default rounded bg-gray-100 px-1 text-[10px] font-semibold text-gray-600">+{resto.length}</span>
+        </Tooltip>
+      )}
+    </span>
   )
 }
 

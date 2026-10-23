@@ -6,6 +6,7 @@ Painel executivo em **um único arquivo HTML**, irmão do dashboard de acompanha
 
 - Público: diretoria. Pergunta central no topo (ex.: "É possível implantar o MVP até jan/27?") e **veredito do PMO**.
 - **Precisa caber em um slide 16:9** (é reaproveitado em apresentação): com 8 frentes, a visão executiva cabe em 1600×900 sem rolagem. Expandir Recursos pode passar da largura (aceito). "Imprimir / PDF" gera página 16:9 (13,33×7,5 pol).
+- **Todas as telas cabem em 1600×900** (a pedido): a página nunca rola; cada caixa encolhe até caber e **rola por dentro** (`src/caixa.ts`: `CAIXA`, `ROLA`, `TELA`). Visão executiva: a grade do plano rola com o cabeçalho de meses/semanas fixo. Mapa: o gráfico guarda a altura que precisa e a lista por par ocupa o resto (mín. 180px). Evoluções e roadblocks: as duas colunas rolam, cabeçalho da tabela fixo; nos cartões, Evoluções até 45% da altura. Detalhe da frente: cada bloco rola. Interdependências do plano: no máximo 5 chips por sentido numa linha (em risco primeiro), o resto vira "+n" com a lista no tooltip. No PDF a rolagem é desligada e o conteúdo pode ocupar mais de uma página.
 - Cabeçalho enxuto, como na foto de referência: só a pergunta; uma faixa com "Leitura para dd/mm", veredito, escala dos 3 estados e os 4 indicadores. **Não mostrar** título do fórum, prazo final em texto nem observação do PMO (removidos a pedido para ganhar espaço vertical).
 - **Data da leitura = data da atualização feita pelo fluxo** (`GERADO_EM`), não um campo digitado.
 - **Veredito não é calculado**: vem da `tbPainel` (Não confirmável / Com condições / Confirmado).
@@ -112,6 +113,7 @@ src/App.tsx         cabeçalho, veredito, indicadores, navegação entre as tela
 src/Frente.tsx      tela "Detalhe da frente"
 src/Criticidade.tsx tela "Evoluções e roadblocks"
 src/tema.ts         os dois visuais (classes por visual)
+src/caixa.ts        classes de layout para tudo caber em 1600×900 (caixas que rolam por dentro)
 src/icones.tsx      ícones de prontidão, risco e losango
 gerar_exemplo.py    gera a planilha de exemplo e src/exemplo.json
 ```

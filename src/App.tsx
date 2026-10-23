@@ -13,6 +13,7 @@ import { Criticidade } from "./Criticidade";
 import { calcJanela, LegendaPlano, Plano } from "./Plano";
 import { Mapa } from "./Mapa";
 import { T } from "./tema";
+import { CAIXA, TELA } from "./caixa";
 import EXEMPLO from "./exemplo.json";
 
 type Linhas = Record<string, unknown>[];
@@ -141,7 +142,7 @@ export default function App() {
         {/* ---------- Cabeçalho ---------- */}
         <header
           className={cx(
-            "flex flex-wrap items-center justify-between gap-3",
+            "flex shrink-0 flex-wrap items-center justify-between gap-3",
             T.headerRule,
           )}
         >
@@ -194,7 +195,7 @@ export default function App() {
             {/* ---------- Veredito + indicadores (uma faixa só) ---------- */}
             <section
               className={cx(
-                "mt-3 flex flex-wrap items-center gap-x-8 gap-y-3 px-5 py-3",
+                "mt-3 flex shrink-0 flex-wrap items-center gap-x-8 gap-y-3 px-5 py-3",
                 T.card,
               )}
             >
@@ -240,8 +241,8 @@ export default function App() {
             </section>
 
             {/* ---------- Plano ---------- */}
-            <section className={cx("mt-3 overflow-hidden", T.card)}>
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 px-4 py-2 print:hidden">
+            <section className={cx("mt-3", CAIXA, T.card)}>
+              <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-black/10 px-4 py-2 print:hidden">
                 <h2 className={T.painelTitulo}>
                   Plano integrado · cronograma e prontidão por frente
                 </h2>
@@ -309,7 +310,7 @@ export default function App() {
                 onAbrir={setAberta}
               />
             </section>
-            <footer className="mt-2">
+            <footer className="mt-2 shrink-0">
               <LegendaPlano camadas={camadas} />
             </footer>
           </>
@@ -328,8 +329,8 @@ export default function App() {
             abrirFrente={abrirFrente}
           />
         ) : (
-          <>
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <div className={TELA}>
+            <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
               <button
                 type="button"
                 className={cx("flex items-center gap-1", T.btn)}
@@ -339,10 +340,8 @@ export default function App() {
               </button>
               <h2 className={T.painelTitulo}>Mapa de interdependências</h2>
             </div>
-            <section className="mt-3">
-              <Mapa prog={prog} onAbrir={setAberta} />
-            </section>
-          </>
+            <Mapa prog={prog} onAbrir={setAberta} />
+          </div>
         )}
       </div>
       <div className="fixed bottom-3 right-3 z-40 flex items-center gap-2 print:hidden">

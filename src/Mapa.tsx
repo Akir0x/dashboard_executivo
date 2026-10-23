@@ -6,6 +6,7 @@ import { conectadas, Dependencia, Frente, marcoSt, MARCO_NOME, ordenarCamadas, P
 import { ChipDep, estiloChip, rotuloDep } from "./ChipDep"
 import { Diamante } from "./icones"
 import { corCamada, T } from "./tema"
+import { CAIXA, ROLA } from "./caixa"
 
 // Rede no tempo: raias = frentes; só entram as macroatividades ligadas a outra frente.
 const LEFT = 230
@@ -116,8 +117,8 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
   }
 
   return (
-    <div className="space-y-3">
-      <div className={cx("flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2.5 text-sm", T.card)}>
+    <div className="flex min-h-0 flex-1 flex-col gap-3 print:block print:space-y-3">
+      <div className={cx("flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2.5 text-sm", T.card)}>
         <span>
           <b className="tabular-nums">{resumo.total}</b> dependências entre frentes
         </span>
@@ -144,8 +145,8 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
         </span>
       </div>
 
-      <div className={cx("overflow-hidden", T.card)}>
-        <div ref={ref} className="overflow-x-auto">
+      <div className={cx(CAIXA, "min-h-[220px]", T.card)}>
+        <div ref={ref} className={ROLA}>
           <div className="relative" style={{ width: W, height: H }}>
             {/* eixo */}
             <div className={cx("absolute left-0 top-0 flex items-center px-3", T.leftHead)} style={{ width: LEFT, height: H_MES + 18 }}>
@@ -327,8 +328,8 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
       </div>
 
       {/* lista por par de frentes */}
-      <div className={cx("overflow-hidden", T.card)}>
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 px-4 py-2.5">
+      <div className={cx(CAIXA, "min-h-[180px] flex-1 basis-0", T.card)}>
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-black/10 px-4 py-2.5">
           <h3 className={T.painelTitulo}>
             Dependências por par de frentes
             {sel && (sel.tipo === "frente" ? ` · frente ${sel.k}` : ` · ${sel.k.replace(">", " → ")}`)}
@@ -341,7 +342,7 @@ export function Mapa({ prog, onAbrir }: { prog: Programa; onAbrir: (f: Frente) =
             <span className={T.rodape}>Em risco primeiro, depois hipóteses a validar</span>
           )}
         </div>
-        <div className="max-h-[420px] overflow-y-auto">
+        <div className={ROLA}>
           {grupos.map((d) => {
             const fa = prog.porId.get(d.de)!
             const fb = prog.porId.get(d.para)!

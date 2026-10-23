@@ -7,6 +7,7 @@ import { hoje } from "./data";
 import { Criticidade as TCrit, CRIT_NOME, Ponto, Programa } from "./exec";
 import { ChipFrente } from "./Frente";
 import { T } from "./tema";
+import { CAIXA, ROLA } from "./caixa";
 
 const dm = (d: Date | null) =>
   d
@@ -70,17 +71,17 @@ function Cartoes({
     .filter((x) => x.n);
 
   return (
-    <div className="mt-3 space-y-3">
+    <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3 print:block print:space-y-3">
       {/* evolução */}
-      <section className={cx("overflow-hidden", T.card)}>
-        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-black/10 px-4 py-2">
+      <section className={cx(CAIXA, "max-h-[45%] print:max-h-none", T.card)}>
+        <div className="flex shrink-0 flex-wrap items-baseline justify-between gap-2 border-b border-black/10 px-4 py-2">
           <h3 className={T.painelTitulo}>Evoluções</h3>
           <span className="text-[11px] text-gray-500">
             {evol.length} atualizaç{evol.length === 1 ? "ão" : "ões"}
           </span>
         </div>
         {evol.length ? (
-          <div className="grid grid-cols-1 gap-3 p-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className={cx(ROLA, "grid grid-cols-1 content-start gap-3 p-3 md:grid-cols-2 xl:grid-cols-4")}>
             {evol.map((p) => (
               <article
                 key={p.n}
@@ -114,8 +115,8 @@ function Cartoes({
       </section>
 
       {/* pontos críticos */}
-      <section className={cx("overflow-hidden", T.card)}>
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 px-4 py-2">
+      <section className={cx(CAIXA, "min-h-[260px] flex-1 basis-0", T.card)}>
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-black/10 px-4 py-2">
           <h3 className={T.painelTitulo}>Roadblocks</h3>
           <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-gray-500">
             {contagem.map(({ c, n }) => (
@@ -136,7 +137,7 @@ function Cartoes({
           </span>
         </div>
         {crit.length ? (
-          <div className="grid grid-cols-1 gap-3 p-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className={cx(ROLA, "grid grid-cols-1 content-start gap-3 p-3 md:grid-cols-2 xl:grid-cols-4")}>
             {crit.map((p) => {
               const vencido = p.prazo && p.prazo < hoje;
               return (
@@ -380,7 +381,7 @@ function TabelaDecisoes({
   );
   return (
     <table className="w-full border-collapse">
-      <thead className="border-b border-black/10 bg-black/[0.02]">
+      <thead className="sticky top-0 z-10 border-b border-black/10 bg-gray-50 print:static">
         <tr>
           <th className={cx(th, "w-24")}>Nível · tipo</th>
           <th className={th}>Ponto · situação hoje</th>
@@ -502,14 +503,16 @@ function UmSlide({
   const crit = ordenarCrit(prog.pontos);
   // Sem corte por criticidade (a pedido): todos os roadblocks entram na tabela, ordenados por criticidade e prazo.
   return (
-    <div className="mt-3 grid grid-cols-[380px_1fr] gap-3">
-      <section className={cx("overflow-hidden", T.card)}>
-        <div className="border-b border-black/10 px-4 py-2.5">
+    <div className="mt-3 grid min-h-0 flex-1 grid-cols-[380px_1fr] grid-rows-[minmax(0,1fr)] items-start gap-3 print:block">
+      <section className={cx(CAIXA, "max-h-full", T.card)}>
+        <div className="shrink-0 border-b border-black/10 px-4 py-2.5">
           <h3 className={T.painelTitulo}>Evoluções</h3>
         </div>
-        <ListaEvolucao prog={prog} abrir={abrir} compacta />
+        <div className={ROLA}>
+          <ListaEvolucao prog={prog} abrir={abrir} compacta />
+        </div>
       </section>
-      <section className={cx("flex flex-col overflow-hidden", T.card)}>
+      <section className={cx(CAIXA, "max-h-full print:mt-3", T.card)}>
         <div className="flex items-center justify-between gap-3 border-b border-black/10 px-4 py-2.5">
           <h3 className={T.painelTitulo}>Roadblocks · decisões necessárias</h3>
           <span className="flex items-center gap-3">
@@ -517,7 +520,9 @@ function UmSlide({
             <Contadores crit={crit} />
           </span>
         </div>
-        <TabelaDecisoes prog={prog} pontos={crit} abrir={abrir} />
+        <div className={ROLA}>
+          <TabelaDecisoes prog={prog} pontos={crit} abrir={abrir} />
+        </div>
       </section>
     </div>
   );
@@ -556,8 +561,8 @@ export function Criticidade({
       ativo ? "border-gray-800" : "border-gray-300",
     );
   return (
-    <div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 print:hidden">
+    <div className="flex min-h-0 flex-1 flex-col print:block">
+      <div className="mt-3 flex shrink-0 flex-wrap items-center justify-between gap-2 print:hidden">
         <button
           type="button"
           className={cx("flex items-center gap-1", T.btn)}
@@ -609,14 +614,14 @@ export function Criticidade({
         </span>
       </div>
       {prog.pontos.length === 0 && (
-        <p className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 print:hidden">
+        <p className="mt-2 shrink-0 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 print:hidden">
           {prog.pontosLidos === 0
             ? "Nenhuma linha da tbPontos chegou ao painel. Confira se o fluxo tem a ação Listar_tbPontos e o replace do marcador PONTOS no Montar_HTML, e se o modelo é a versão nova do HTML."
             : `${prog.pontosLidos} linha(s) da tbPontos chegaram, mas nenhuma tem Titulo ou Descricao preenchidos (confira os nomes das colunas).`}
         </p>
       )}
       {(frente || dono) && (
-        <p className="mt-2 text-sm text-gray-600 print:mt-1">
+        <p className="mt-2 shrink-0 text-sm text-gray-600 print:mt-1">
           Filtrado:{" "}
           {frente && (
             <>

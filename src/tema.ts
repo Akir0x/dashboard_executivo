@@ -50,8 +50,8 @@ export interface Tema {
 }
 
 const tremor: Tema = {
-  page: "min-h-screen bg-gray-50 font-sans text-gray-900",
-  wrap: "mx-auto max-w-[1600px] px-6 py-4",
+  page: "h-screen overflow-hidden print:h-auto print:overflow-visible bg-gray-50 font-sans text-gray-900",
+  wrap: "mx-auto flex h-full max-w-[1600px] flex-col px-6 py-4 print:block print:h-auto",
   eyebrow: "text-xs font-medium text-gray-500",
   h1: "text-xl font-semibold tracking-tight text-gray-900",
   headerRule: "",
@@ -101,8 +101,8 @@ const tremor: Tema = {
 }
 
 const forum: Tema = {
-  page: "min-h-screen bg-[#f3f2ee] font-['Barlow',sans-serif] text-[#1d2530]",
-  wrap: "mx-auto max-w-[1600px] px-6 py-4",
+  page: "h-screen overflow-hidden print:h-auto print:overflow-visible bg-[#f3f2ee] font-['Barlow',sans-serif] text-[#1d2530]",
+  wrap: "mx-auto flex h-full max-w-[1600px] flex-col px-6 py-4 print:block print:h-auto",
   eyebrow: "font-['Barlow_Condensed',sans-serif] text-sm font-bold uppercase tracking-[0.12em] text-[#b4232a]",
   h1: "font-['Barlow',sans-serif] text-2xl font-extrabold leading-tight text-[#1d2530]",
   headerRule: "border-b-[3px] border-[#b4232a] pb-2",
