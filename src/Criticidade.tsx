@@ -1,5 +1,5 @@
-// Tela "Evolução e pontos críticos": alimentada pela tbPontos (preenchida à mão).
-// Evolução = cartões "o que avançou"; Risco e Atenção = cartões de pontos críticos por criticidade.
+// Tela "Evoluções e roadblocks": alimentada pela tbPontos (preenchida à mão).
+// Evolução = evoluções; Risco e Atenção = roadblocks por criticidade.
 import React from "react"
 import { RiArrowLeftSLine, RiCheckboxCircleFill } from "@remixicon/react"
 import { cx } from "./utils/cx"
@@ -42,7 +42,7 @@ function Cartoes({ prog, abrirFrente }: { prog: Programa; abrirFrente: (id: stri
       {/* evolução */}
       <section className={cx("overflow-hidden", T.card)}>
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-black/10 px-4 py-2">
-          <h3 className={T.painelTitulo}>Evolução</h3>
+          <h3 className={T.painelTitulo}>Evoluções</h3>
           <span className="text-[11px] text-gray-500">{evol.length} atualizaç{evol.length === 1 ? "ão" : "ões"}</span>
         </div>
         {evol.length ? (
@@ -71,7 +71,7 @@ function Cartoes({ prog, abrirFrente }: { prog: Programa; abrirFrente: (id: stri
       {/* pontos críticos */}
       <section className={cx("overflow-hidden", T.card)}>
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 px-4 py-2">
-          <h3 className={T.painelTitulo}>Pontos críticos de risco e atenção</h3>
+          <h3 className={T.painelTitulo}>Roadblocks</h3>
           <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-gray-500">
             {contagem.map(({ c, n }) => (
               <span key={c} className={cx("rounded-full px-2 py-0.5 font-semibold", COR[c].badge)}>
@@ -128,7 +128,7 @@ function Cartoes({ prog, abrirFrente }: { prog: Programa; abrirFrente: (id: stri
             })}
           </div>
         ) : (
-          <p className="px-4 py-3 text-sm text-gray-500">Nenhum ponto crítico registrado (Tipo = Risco ou Atenção na tbPontos).</p>
+          <p className="px-4 py-3 text-sm text-gray-500">Nenhum roadblock registrado (Tipo = Risco ou Atenção na tbPontos).</p>
         )}
       </section>
     </div>
@@ -239,20 +239,20 @@ function UmSlide({ prog, abrir }: { prog: Programa; abrir: (id: string) => void 
     <div className="mt-3 grid grid-cols-[380px_1fr] gap-3">
       <section className={cx("overflow-hidden", T.card)}>
         <div className="border-b border-black/10 px-4 py-2.5">
-          <h3 className={T.painelTitulo}>O que avançou</h3>
+          <h3 className={T.painelTitulo}>Evoluções</h3>
         </div>
         <ListaEvolucao prog={prog} abrir={abrir} compacta />
       </section>
       <section className={cx("flex flex-col overflow-hidden", T.card)}>
         <div className="flex items-center justify-between gap-3 border-b border-black/10 px-4 py-2.5">
-          <h3 className={T.painelTitulo}>O que trava e o que precisamos decidir</h3>
+          <h3 className={T.painelTitulo}>Roadblocks · decisões necessárias</h3>
           <Contadores crit={crit} />
         </div>
         <TabelaDecisoes prog={prog} pontos={topo} abrir={abrir} />
         {resto.length > 0 && (
           <p className="mt-auto border-t border-black/10 px-4 py-2 text-[13px] text-gray-600">
             <b className="text-gray-800">
-              + {resto.length} ponto{resto.length > 1 ? "s" : ""} de menor criticidade:
+              + {resto.length} roadblock{resto.length > 1 ? "s" : ""} de menor criticidade:
             </b>{" "}
             {resto.map((p) => p.titulo).join(" · ")}
           </p>

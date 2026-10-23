@@ -20,7 +20,7 @@ Painel executivo em **um único arquivo HTML**, irmão do dashboard de acompanha
 
 ## Tabelas (arquivo `roadmap_executivo_exemplo.xlsx`)
 
-**`tbPainel`** (aba Painel, 1 linha, preenchida pelo PMO): `Pergunta`, `Veredito`, `TituloEvolucao` (título da tela de evolução/criticidade), `PrazoFinal` (só usado para destacar a semana do prazo em vermelho) e os 4 indicadores opcionais `FrentesSemCronograma`, `DependenciasEmRisco`, `FrentesComPendencia`, `BloqueiosProntidao`. **Vazio = o painel calcula; preenchido ("2/8" ou "11") = o valor digitado aparece no topo.** Se só o numerador for digitado, o denominador continua calculado. As células ficam em formato Texto para o Excel não converter "2/8" em data.
+**`tbPainel`** (aba Painel, 1 linha, preenchida pelo PMO): `Pergunta`, `Veredito`, `TituloEvolucao` (título da tela "Evoluções e roadblocks"; vazio = esse texto), `PrazoFinal` (só usado para destacar a semana do prazo em vermelho) e os 4 indicadores opcionais `FrentesSemCronograma`, `DependenciasEmRisco`, `FrentesComPendencia`, `BloqueiosProntidao`. **Vazio = o painel calcula; preenchido ("2/8" ou "11") = o valor digitado aparece no topo.** Se só o numerador for digitado, o denominador continua calculado. As células ficam em formato Texto para o Excel não converter "2/8" em data.
 
 **`tbFrentes`** (aba Frentes, 1 linha por frente):
 
@@ -47,17 +47,17 @@ Painel executivo em **um único arquivo HTML**, irmão do dashboard de acompanha
 
 | Coluna | Valores |
 |---|---|
-| `Tipo` | **Evolução** (cartões "o que avançou"), **Pendência**, **Atenção** (ponto de atenção) ou **Risco** |
+| `Tipo` | **Evolução** (bloco Evoluções), **Pendência**, **Atenção** (ponto de atenção) ou **Risco** |
 | `Titulo`, `Descricao` | o que é / situação hoje ("Hoje" no cartão) |
 | `Acao` | plano de ação ou decisão necessária ("Decidir" no cartão; "Plano de ação" no detalhe) |
 | `Frente` | IDs de frente separados por `;` (ex.: `03; 06; 07`) ou `Todas` |
 | `Responsavel` | dono |
 | `Prazo` | data ou texto (ex.: "a definir" → aparece como "sem data") |
-| `Criticidade` | Crítico, Alto, Médio, Baixo (agrupa e conta os cartões de pontos críticos) |
-| `Data` | data da evolução (cartões de Evolução) |
+| `Criticidade` | Crítico, Alto, Médio, Baixo (agrupa e conta os roadblocks) |
+| `Data` | data da evolução |
 | `Fonte` | opcional, rodapé do cartão |
 
-Onde cada tipo aparece: **detalhe da frente** → só Pendência e Atenção (decisão do usuário); **pontos críticos** → Risco e Atenção; **evolução** → Evolução.
+Onde cada tipo aparece: **detalhe da frente** → só Pendência e Atenção (decisão do usuário); **roadblocks** → Risco e Atenção; **evoluções** → Evolução.
 
 - **IDs são só números** (sem prefixo). Uma macroatividade pode reunir várias atividades, então a célula de `ID` aceita **vários números separados por `;`** (ex.: `01; 50; 90`). `Predecessoras`/`Sucessoras` citam qualquer um desses números, e a ligação vai para a linha que o contém. "01" e "1" são o mesmo ID. Colunas ID, Predecessoras e Sucessoras ficam em formato Texto na planilha.
 - A ligação com a frente é pelo **nome** (coluna `Frente` igual à da `tbFrentes`; acento e maiúscula não importam) ou pelo número da frente.
@@ -78,9 +78,9 @@ Onde cada tipo aparece: **detalhe da frente** → só Pendência e Atenção (de
 
 ## Estrutura da tela
 
-1. Cabeçalho: pergunta (na tela de criticidade, o `TituloEvolucao`; no detalhe, "Detalhe da frente") e "Atualizado em…" (só com dados do fluxo; o selo "Dados de exemplo" foi removido a pedido). Botão "PDF" pequeno, fixo no canto inferior direito.
-2. Faixa única: "Leitura para dd/mm" + veredito + escala de 3 estados + 4 indicadores.
-3. **Plano integrado** (visão executiva). Os controles ficam na barra do próprio bloco, **pequenos e discretos** (texto cinza, sem borda, para não competir com o conteúdo): ‹ Hoje › (semana a semana), intervalo S#–S#, "Ver dependências", "Prontidão", "Mapa de interdependências ›" e "Evolução e pontos críticos ›". Grade: frente (nº colorido pela camada, ✓ reporte, nome, líder, CP) · semanas agrupadas por mês (semana atual e semana do prazo destacadas, linha tracejada "Hoje") · Prontidão **nasce oculta** (a pedido): o botão "Prontidão" na barra do plano mostra as 4 colunas (Escopo, Prazo, Entregáveis, Recursos) e o − no cabeçalho "Prontidão" oculta de novo; Recursos tem o próprio + para as áreas · Risco (só as barras do nível; detalhe no tooltip) · Interdependências (← recebe de, → entrega para). Rodapé: carga de marcos por semana e totais OK/n. Passar o mouse numa frente apaga as não conectadas; **clicar no número/nome da frente abre a tela "Detalhe da frente"** (substituiu o antigo painel lateral).
+1. Cabeçalho: pergunta (na tela de evoluções e roadblocks, o `TituloEvolucao`; no detalhe, "Detalhe da frente") e "Atualizado em…" (só com dados do fluxo; o selo "Dados de exemplo" foi removido a pedido). Botão "PDF" pequeno, fixo no canto inferior direito.
+2. Faixa única: "Leitura para dd/mm" + **escala de 3 estados do veredito em destaque** (o escolhido aceso; o texto grande do veredito foi removido a pedido) + 4 indicadores.
+3. **Plano integrado** (visão executiva). Os controles ficam na barra do próprio bloco, **pequenos e discretos** (texto cinza, sem borda, para não competir com o conteúdo): ‹ Hoje › (semana a semana), intervalo S#–S#, "Ver dependências", "Prontidão", "Mapa de interdependências ›" e "Evoluções e roadblocks ›". Grade: frente (nº colorido pela camada, ✓ reporte, nome, líder, CP) · semanas agrupadas por mês (semana atual e semana do prazo destacadas, linha tracejada "Hoje") · Prontidão **nasce oculta** (a pedido): o botão "Prontidão" na barra do plano mostra as 4 colunas (Escopo, Prazo, Entregáveis, Recursos) e o − no cabeçalho "Prontidão" oculta de novo; Recursos tem o próprio + para as áreas · Risco (só as barras do nível; detalhe no tooltip) · Interdependências (← recebe de, → entrega para). Rodapé: carga de marcos por semana e totais OK/n. Passar o mouse numa frente apaga as não conectadas; **clicar no número/nome da frente abre a tela "Detalhe da frente"** (substituiu o antigo painel lateral).
 4. **Mapa de interdependências** (tela separada, sem a faixa de veredito e indicadores; botão "‹ Voltar à visão executiva"), em formato de **rede no tempo**:
    - faixa-resumo: total de dependências, comprovadas, hipóteses, não declaradas, em risco;
    - raias = frentes; aparecem **todas as macroatividades** (decisão: o mapa mostra o todo), como **retângulos do período com o nome dentro** (cor da camada da frente; corta com "…" se não couber; atrasada com contorno vermelho e ícone de alarme; concluída mais clara). A raia **cresce em linhas** conforme a quantidade de macroatividades, sem sobrepor (como no primeiro roadmap). Setas do fim da predecessora ao início da sucessora: **entre frentes** em cinza escuro (clicáveis, filtram a lista) e **dentro da mesma frente** em cinza claro e fino; vermelha tracejada se atrasada ou em conflito. Raia sem nenhuma macroatividade mostra "Sem cronograma" e as hipóteses dela;
@@ -88,11 +88,11 @@ Onde cada tipo aparece: **detalhe da frente** → só Pendência e Atenção (de
    - lista "Dependências por par de frentes": em risco primeiro, depois hipóteses; cada par mostra o estado e as macroatividades que o formam (ou o aviso para validar com os líderes).
 5. Legenda compacta abaixo do plano, **só Roadmap e Camadas** (a pedido). Prontidão, risco e interdependências não têm legenda: o significado aparece no tooltip ao passar o mouse.
 6. **Detalhe da frente** (`src/Frente.tsx`, inspirado na imagem de referência de "reporte detalhado"): "‹ Voltar à visão executiva" + abas com todas as frentes (nº, ✓ reporte, nome curto); cabeçalho (nº, nome, CP, descrição, área · líder · sponsor · camada; selo de situação "Em andamento · x de y macroatividades concluídas" / Com atraso / Concluída / Sem cronograma; "Fim planejado" = maior DataFim, ou data-alvo, e "faltam ~N semanas"). Esquerda: **Macroatividades** (nome, IDs, período, % avanço, responsável, prazo, **mini linha do tempo** nas mesmas 18 semanas do plano com losango, hoje tracejado e prazo final em vermelho, status) e **Pendências e pontos de atenção** (tbPontos Tipo Pendência/Atenção da frente ou "Todas"; plano de ação + responsável; data prevista com situação vencida / no prazo / sem data; vencidas primeiro). Direita: **Prontidão da frente** (ícone + status + comentário; Recursos com as áreas) e **Interdependências desta frente** (● comprovada / ○ hipótese / ! não declarada; para cada ligação: macroatividades, "fim da predecessora → início da sucessora" e folga em semanas, vermelha se negativa ou em conflito).
-7. **Evolução e pontos críticos** (`src/Criticidade.tsx`), **pensada para caber em um slide** (versão principal escolhida pelo usuário, "B · 1 slide"): "‹ Voltar à visão executiva" e, à direita, o botão discreto "Ver em cartões" (alterna para a versão original e volta com "Ver em tabela (1 slide)").
-   - **Esquerda, coluna estreita "O que avançou":** lista com uma linha por item do Tipo Evolução (✓, título, chips das frentes ou TODAS, descrição em até 2 linhas).
-   - **Direita, "O que trava e o que precisamos decidir":** contadores por criticidade e **tabela de decisões** só com **Crítico e Alto** (Nível com faixa colorida · Ponto + situação hoje = `Descricao` · Decisão pedida = `Acao` · Dono · Prazo, vermelho se vencido ou sem data · Frentes, chips clicáveis que abrem o detalhe). Linhas críticas com fundo rosado. Ordem: criticidade, depois prazo.
-   - **Rodapé da tabela:** "+ n pontos de menor criticidade: …" (Médio, Baixo e sem criticidade, só os títulos), para o slide não estourar quando a tbPontos crescer.
-   - **Versão em cartões (original):** bloco Evolução em cartões + bloco Pontos críticos em cartões (selo, título, HOJE, DECIDIR, dono, prazo, frentes, fonte), com Risco e Atenção de todas as criticidades.
+7. **Evoluções e roadblocks** (`src/Criticidade.tsx`; antes "Evolução e pontos críticos" / "o que avançou e o que ainda trava", renomeado a pedido), **pensada para caber em um slide** (versão principal escolhida pelo usuário, "B · 1 slide"): "‹ Voltar à visão executiva" e, à direita, o botão discreto "Ver em cartões" (alterna para a versão original e volta com "Ver em tabela (1 slide)").
+   - **Esquerda, coluna estreita "Evoluções":** lista com uma linha por item do Tipo Evolução (✓, título, chips das frentes ou TODAS, descrição em até 2 linhas).
+   - **Direita, "Roadblocks · decisões necessárias":** contadores por criticidade e **tabela de decisões** só com **Crítico e Alto** (Nível com faixa colorida · Ponto + situação hoje = `Descricao` · Decisão pedida = `Acao` · Dono · Prazo, vermelho se vencido ou sem data · Frentes, chips clicáveis que abrem o detalhe). Linhas críticas com fundo rosado. Ordem: criticidade, depois prazo.
+   - **Rodapé da tabela:** "+ n roadblocks de menor criticidade: …" (Médio, Baixo e sem criticidade, só os títulos), para o slide não estourar quando a tbPontos crescer.
+   - **Versão em cartões (original):** bloco Evoluções em cartões + bloco Roadblocks em cartões (selo, título, HOJE, DECIDIR, dono, prazo, frentes, fonte), com Risco e Atenção de todas as criticidades.
    - Uma opção "2 slides" (evolução e decisões em páginas separadas) foi simulada e descartada.
 
 ## Código (`app` deste painel)
@@ -106,7 +106,7 @@ src/Mapa.tsx        mapa de interdependências (rede no tempo + lista por par)
 src/ChipDep.tsx     chip de interdependência (comprovada, hipótese, não declarada, risco)
 src/App.tsx         cabeçalho, veredito, indicadores, navegação entre as telas
 src/Frente.tsx      tela "Detalhe da frente"
-src/Criticidade.tsx tela "Evolução e pontos críticos"
+src/Criticidade.tsx tela "Evoluções e roadblocks"
 src/tema.ts         os dois visuais (classes por visual)
 src/icones.tsx      ícones de prontidão, risco e losango
 gerar_exemplo.py    gera a planilha de exemplo e src/exemplo.json

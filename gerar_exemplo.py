@@ -95,7 +95,7 @@ INICIATIVAS = [
 
 # ---------- campos do detalhe e da tela de evolução/criticidade ----------
 PAINEL_CAB = PAINEL_CAB + ["TituloEvolucao"]
-PAINEL = [PAINEL[0] + ("Desde a última diretiva: o que avançou e o que ainda trava jan/27",)]
+PAINEL = [PAINEL[0] + ("Evoluções e roadblocks",)]
 
 _DETALHE = {  # ID da frente: (NomeCurto, Descricao, Area, Sponsor, EscopoComentario, PrazoComentario, EntregaveisComentario, RecursosComentario)
     "01": ("Dados", "Validação das fontes de dados de clientes e disponibilização para o motor.", "Dados", "Marcos Vieira",
@@ -237,7 +237,7 @@ textos = [
     ("Frente sem nenhuma iniciativa aparece como 'Sem cronograma · data-alvo'.", False),
     ("", False),
     ("tbPontos (aba Pontos) — preenchida à mão", True),
-    ("Tipo: Evolução (cartões 'o que avançou'), Pendência ou Atenção (aparecem no detalhe da frente e Atenção também nos pontos críticos) ou Risco (cartões de pontos críticos).", False),
+    ("Tipo: Evolução (bloco Evoluções), Pendência ou Atenção (aparecem no detalhe da frente e Atenção também nos roadblocks) ou Risco (roadblocks).", False),
     ("Titulo e Descricao: o que aconteceu / qual é o risco. Acao: plano de ação ou decisão necessária. Frente: IDs separados por ; ou 'Todas'.", False),
     ("Responsavel e Prazo (data ou texto como 'a definir'). Criticidade: Crítico, Alto, Médio ou Baixo (agrupa os cartões). Data: data da evolução. Fonte: opcional.", False),
     ("", False),

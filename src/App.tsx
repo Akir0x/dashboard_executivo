@@ -79,7 +79,7 @@ export default function App() {
             {aba === "frente"
               ? "Detalhe da frente"
               : aba === "crit"
-                ? painel.tituloEvolucao || "O que avançou e o que ainda trava"
+                ? painel.tituloEvolucao || "Evoluções e roadblocks"
                 : painel.pergunta || "Roadmap executivo"}
           </h1>
           {gerado && <span className="text-xs text-gray-500 print:hidden">Atualizado em {gerado}</span>}
@@ -89,29 +89,23 @@ export default function App() {
           <>
             {/* ---------- Veredito + indicadores (uma faixa só) ---------- */}
             <section className={cx("mt-3 flex flex-wrap items-center gap-x-8 gap-y-3 px-5 py-3", T.card)}>
+              {/* veredito: só a escala dos 3 estados, com o escolhido em destaque */}
               <div>
-                <p className={T.leituraLabel}>Leitura para {dm(painel.leitura)}</p>
-                <p
-                  className={cx(
-                    forum ? "font-['Barlow_Condensed',sans-serif] text-3xl font-bold uppercase leading-none" : "text-2xl font-semibold leading-tight",
-                    painel.veredito ? T.vereditoTexto[painel.veredito] : "text-gray-400",
-                  )}
-                >
-                  {vNome}
-                </p>
-              </div>
-              <div className="flex gap-1">
-                {VEREDITOS.map((v) => (
-                  <span
-                    key={v.k}
-                    className={cx(
-                      "rounded px-2 py-1 text-[11px] font-semibold uppercase tracking-wide ring-1 ring-inset",
-                      painel.veredito === v.k ? T.veredito[v.k].on : T.veredito[v.k].off,
-                    )}
-                  >
-                    {v.nome}
-                  </span>
-                ))}
+                <p className={cx("mb-1.5", T.leituraLabel)}>Leitura para {dm(painel.leitura)}</p>
+                <div className="flex gap-1.5" title={vNome}>
+                  {VEREDITOS.map((v) => (
+                    <span
+                      key={v.k}
+                      className={cx(
+                        "rounded px-3 py-1.5 font-bold uppercase tracking-wide ring-1 ring-inset",
+                        forum ? "font-['Barlow_Condensed',sans-serif] text-base" : "text-sm",
+                        painel.veredito === v.k ? T.veredito[v.k].on : T.veredito[v.k].off,
+                      )}
+                    >
+                      {v.nome}
+                    </span>
+                  ))}
+                </div>
               </div>
               <div className="ml-auto flex flex-wrap items-center gap-x-7 gap-y-2">
                 {kpis.map((k) => (
@@ -155,7 +149,7 @@ export default function App() {
                     Mapa de interdependências <RiArrowRightSLine className="size-3.5" />
                   </button>
                   <button type="button" className={cx(pequeno, "flex items-center gap-0.5")} onClick={() => setAba("crit")}>
-                    Evolução e pontos críticos <RiArrowRightSLine className="size-3.5" />
+                    Evoluções e roadblocks <RiArrowRightSLine className="size-3.5" />
                   </button>
                 </div>
               </div>
